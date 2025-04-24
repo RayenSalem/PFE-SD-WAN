@@ -1,9 +1,15 @@
 ---
-- name: Test host connectivity
+- name: Test FortiOS API connectivity
   hosts: all
   gather_facts: no
   connection: httpapi
 
   tasks:
-    - name: Ping all hosts
-      ansible.builtin.ping:
+    - name: Get system status via API
+      fortinet.fortios.fortios_monitor_system_status:
+        vdom: "root"
+      register: api_result
+      
+    - name: Display connection result
+      debug:
+        var: api_result
