@@ -5,11 +5,11 @@
   connection: httpapi
 
   tasks:
-    - name: Get system status via API
-      fortinet.fortios.fortios_monitor_system_status:
+    - name: Get system status
+      fortios.fortios_monitor_system_status:
         vdom: "root"
       register: api_result
       
-    - name: Display connection result
+    - name: Show connection result
       debug:
         var: api_result
