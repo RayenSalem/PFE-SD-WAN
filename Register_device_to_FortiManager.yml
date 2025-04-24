@@ -2,6 +2,7 @@
 - name: Test host connectivity
   hosts: all
   gather_facts: no
+  connection: httpapi
 
   tasks:
     - name: Ping all hosts
