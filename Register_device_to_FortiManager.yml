@@ -1,6 +1,6 @@
 ---
 - name: Test host connectivity
-  hosts: 192.168.10.6
+  hosts: all
   gather_facts: no
 
   tasks:
