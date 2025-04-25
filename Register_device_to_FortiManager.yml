@@ -13,7 +13,7 @@
      ansible_httpapi_port: 443
   tasks:
    - name: Configure devices.
-     fortinet.fortimanager.fmgr_user_device:  
+     fortinet.fortimanager.plugins.modules.fmgr_user_device: 
         bypass_validation: False
         # workspace_locking_adom: <value in [global, custom adom including root]>
         # workspace_locking_timeout: 300
