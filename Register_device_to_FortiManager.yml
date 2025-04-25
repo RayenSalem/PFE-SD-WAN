@@ -1,5 +1,5 @@
 - name: Reverse FortiManager configuration
-  hosts: fortimanager
+  hosts: all
   gather_facts: no
   tasks:
     - name: Print result of removal
