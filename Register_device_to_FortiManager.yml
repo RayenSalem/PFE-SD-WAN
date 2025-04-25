@@ -5,7 +5,6 @@
   connection: httpapi
 
   tasks:
-    - name: Get system status
-      fortinet.fortios.fortios_monitor_system_status:
+    - fortinet.fortios.fortios_monitor_system_status:
         vdom: "root"
       register: result
