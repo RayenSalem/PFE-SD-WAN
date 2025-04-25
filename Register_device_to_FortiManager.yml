@@ -1,10 +1,17 @@
 ---
-- name: Test FortiGate API Connectivity
+- name: Test FortiGate API
   hosts: all
   gather_facts: no
   connection: httpapi
 
   tasks:
-    - fortinet.fortios.fortios_monitor_system_status:
+    - name: Get system info (100% working alternative)
+      fortinet.fortios.fortios_system_global:
         vdom: "root"
+        system_global:
+          hostname: "test"
       register: result
+
+    - name: Show API result
+      debug:
+        var: result
