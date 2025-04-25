@@ -1,7 +1,22 @@
-- name: Reverse FortiManager configuration
-  hosts: fortimanager
+- name: Delete a policy from FortiManager
+  hosts: all
   gather_facts: no
+  collections:
+    - fortinet.fortimanager
   tasks:
-    - name: Print result of removal
+    - name: Remove firewall policy
+      fmgr_firewall_policy:
+        adom: "root"  # Replace with your ADOM
+        state: absent
+        policyid: 10  # Replace with the actual policy ID
+        enable_log: true
+        forticloud_access_token: "{{ fortimanager_token }}"
+        workspace_locking_adom: "root"
+        workspace_locking_timeout: 300
+        bypass_validation: true
+        rc_succeeded: [0, -2, -3, -5]
+      register: result
+
+    - name: Show result
       debug:
-        msg: "test"
+        var: result
