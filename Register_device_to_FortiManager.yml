@@ -1,59 +1,18 @@
-# Author: Link Zheng
-# Org: Fortinet
-# Date: 2020.09.11
-# Label: device, cmd
-# Desc: Add a FGT device to FMG
-- name: Add a FOS device to FMG
-  hosts: all
-  gather_facts: no
+- name: Test connection to FortiManager
+  hosts: fortimanager
   connection: httpapi
-  collections:
-    - fortinet.fortimanager
+  gather_facts: no
+
   vars:
-    ansible_httpapi_use_ssl: True
-    ansible_httpapi_validate_certs: False
-    ansible_httpapi_port: 443
-    fos_user: 'admin'
-    fos_pass: 'admin'
-    fos_ip: '172.21.0.254'
+    ansible_httpapi_use_ssl: true
+    ansible_httpapi_validate_certs: false
+    ansible_network_os: fortinet.fortimanager.fortimanager
+    ansible_user: "admin"
+    ansible_password: "your_password"
+    ansible_host: "192.168.10.6"
   tasks:
-    - name: discover device
-      fmgr_dvm_cmd_discover_device:
-        bypass_validation: True
-        dvm_cmd_discover_device:
-            device:
-                adm_pass: '{{ fos_pass }}'
-                adm_usr: '{{ fos_user }}'
-                ip: '{{ fos_ip }}'
-      register: probed_device
-
-    - name: add device
-      fmgr_dvm_cmd_add_device:
-        bypass_validation: True
-        dvm_cmd_add_device:
-            adom: 'root'
-            flags:
-              - 'create_task'
-              - 'nonblocking'
-            device:
-                adm_usr: '{{ probed_device.meta.response_data.device.adm_usr }}'
-                adm_pass: '{{ probed_device.meta.response_data.device.adm_pass }}'
-                desc: 'The device is added via FortiManager Ansible'
-                ip: '{{ probed_device.meta.response_data.device.ip }}'
-                mgmt_mode: 'fmg'
-                name: '{{ probed_device.meta.response_data.device.name }}'
-                sn: '{{ probed_device.meta.response_data.device.sn }}'
-      register: installing_task
-
-    # Must wait and poll to see whether failure happens
-    - name: poll the task
-      fmgr_fact:
+    - name: Retrieve FortiManager sys_status facts
+      fortinet.fortimanager.fmgr_fact:
         facts:
-            selector: 'task_task'
-            params:
-                task: '{{installing_task.meta.response_data.taskid}}'
-      register: taskinfo
-      until: taskinfo.meta.response_data.percent == 100
-      retries: 30
-      delay: 5
-      failed_when: taskinfo.meta.response_data.state == 'error' and 'devsnexist' not in taskinfo.meta.response_data.line[0].detail
+          selector: "sys_status"
+          params: {}
