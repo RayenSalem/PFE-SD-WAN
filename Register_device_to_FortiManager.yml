@@ -1,15 +1,13 @@
 - name: Register device to FortiManager
   hosts: fortimanager
   connection: httpapi
-  collections:
-    - fortinet.fortimanager
   vars:
     ansible_httpapi_use_ssl: true
     ansible_httpapi_validate_certs: false
     ansible_httpapi_port: 443
   tasks:
     - name: Configure user device
-      fmgr_user_device:
+      fortinet.fortimanager.fmgr_user_device:
         adom: ansible
         state: present
         user_device:
