@@ -3,7 +3,7 @@
 # Date: 2020.09.28
 # Label: user
 # Desc: Configure devices.
-- hosts: all
+- hosts: fortimanager
   collections:
     - fortinet.fortimanager
   connection: httpapi
