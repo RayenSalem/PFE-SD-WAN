@@ -8,7 +8,7 @@
     ansible_httpapi_validate_certs: false
     ansible_network_os: fortinet.fortimanager.fortimanager
     ansible_user: "admin"
-    ansible_password: "your_password"
+    ansible_password: "admin"
     ansible_host: "192.168.10.6"
   tasks:
     - name: Retrieve FortiManager sys_status facts
