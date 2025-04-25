@@ -1,17 +1,6 @@
-- name: Register device to FortiManager
+- name: Reverse FortiManager configuration
   hosts: fortimanager
-  connection: httpapi
-  vars:
-    ansible_httpapi_use_ssl: true
-    ansible_httpapi_validate_certs: false
-    ansible_httpapi_port: 443
+  gather_facts: no
   tasks:
-    - name: Configure user device
-      fortinet.fortimanager.fmgr_user_device:
-        adom: ansible
-        state: present
-        user_device:
-          alias: ansible-test-device
-          category: android-device
-          comment: ansible-comment
-          type: iphone
+    - name: Remove firewall policy
+      fortinet.fortimanager.fmgr_firewall_policy:
