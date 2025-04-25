@@ -14,7 +14,7 @@
     ansible_httpapi_validate_certs: False
     ansible_httpapi_port: 443
     fos_user: 'admin'
-    fos_pass: 'password'
+    fos_pass: 'admin'
     fos_ip: '172.21.0.254'
   tasks:
     - name: discover device
