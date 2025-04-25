@@ -2,5 +2,6 @@
   hosts: fortimanager
   gather_facts: no
   tasks:
-    - name: Remove firewall policy
-      fortinet.fortimanager.fmgr_firewall_policy:
+    - name: Print result of removal
+      debug:
+        msg: "test"
