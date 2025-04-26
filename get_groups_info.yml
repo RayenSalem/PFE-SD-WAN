@@ -35,4 +35,4 @@
     - name: Display full response (verbose)
       debug:
         var: group_facts
-      when: false  # Set to true if you want to see the full output
+      
