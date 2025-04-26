@@ -1,6 +1,6 @@
 - name: Gather FortiManager facts
   hosts: fortimanager
-  gather_facts: no  # We're not gathering system facts, just FMG-specific ones
+  gather_facts: no
   connection: httpapi
   collections:
     - fortinet.fortimanager
@@ -20,10 +20,19 @@
           selector: 'dvmdb_group'
           params:
             adom: 'root'
-            group: '' 
+            group: ''
+            # Add these parameters to get more complete results
+            fields: ['name', 'desc', 'os_type', 'type', 'cluster_type']
+            loadsub: 1  # Load all subgroups
+            range: [0, 100]  # Get first 100 groups
       
-      register: group_facts  
+      register: group_facts
     
-    - name: Display the gathered group facts
+    - name: Display just the group names
+      debug:
+        msg: "Found groups: {{ group_facts.meta.response_data | map(attribute='name') | list }}"
+    
+    - name: Display full response (verbose)
       debug:
         var: group_facts
+      when: false  # Set to true if you want to see the full output
