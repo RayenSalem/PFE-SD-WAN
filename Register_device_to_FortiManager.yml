@@ -4,7 +4,7 @@
 # Label: device, cmd
 # Desc: Add a FGT device to FMG
 - name: Add a FOS device to FMG
-  hosts: fortimanager01
+  hosts: fortimanager
   gather_facts: no
   connection: httpapi
   collections:
