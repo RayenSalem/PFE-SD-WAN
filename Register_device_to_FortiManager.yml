@@ -16,6 +16,9 @@
     ansible_user: "admin"
     ansible_password: "admin"
     ansible_host: "192.168.10.6"
+    fos_user: "admin"
+    fos_pass: "admin"
+    ip: "172.21.0.254"
   tasks:
     - name: discover device
       fmgr_dvm_cmd_discover_device:
