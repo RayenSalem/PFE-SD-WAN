@@ -1,5 +1,5 @@
 - name: Delete first FOS devices from FMG In a specific adom
-  hosts: fortimanager01
+  hosts: fortimanager
   gather_facts: no
   connection: httpapi
   collections:
