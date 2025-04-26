@@ -17,5 +17,5 @@
        facts:
            selector: 'dvmdb_group'
            params:
-               adom: 'ansible'
+               adom: 'root'
                group: ''
