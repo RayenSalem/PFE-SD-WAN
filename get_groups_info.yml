@@ -1,9 +1,10 @@
-- name: gathering fortimanager facts
+- name: Gather FortiManager facts
   hosts: fortimanager
-  gather_facts: no
+  gather_facts: no  # We're not gathering system facts, just FMG-specific ones
   connection: httpapi
   collections:
     - fortinet.fortimanager
+  
   vars:
     ansible_httpapi_use_ssl: true
     ansible_httpapi_validate_certs: false
@@ -11,11 +12,18 @@
     ansible_user: "admin"
     ansible_password: "admin"
     ansible_host: "192.168.10.6"
+  
   tasks:
-   - name: retrieve all the groups in the device
-     fmgr_fact:
-       facts:
-           selector: 'dvmdb_group'
-           params:
-               adom: 'root'
-               group: ''
+    - name: Retrieve all device groups
+      fortinet.fortimanager.fmgr_fact:
+        facts:
+          selector: 'dvmdb_group'
+          params:
+            adom: 'root'
+            group: '' 
+      
+      register: group_facts  
+    
+    - name: Display the gathered group facts
+      debug:
+        var: group_facts
