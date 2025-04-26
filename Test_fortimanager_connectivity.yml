@@ -1,0 +1,24 @@
+- name: Test connection to FortiManager and show facts
+  hosts: fortimanager
+  connection: httpapi
+  gather_facts: no
+
+  vars:
+    ansible_httpapi_use_ssl: true
+    ansible_httpapi_validate_certs: false
+    ansible_network_os: fortinet.fortimanager.fortimanager
+    ansible_user: "admin"
+    ansible_password: "admin"
+    ansible_host: "192.168.10.6"
+
+  tasks:
+    - name: Retrieve FortiManager sys_status facts
+      fortinet.fortimanager.fmgr_fact:
+        facts:
+          selector: "sys_status"
+          params: {}
+      register: fmgr_facts  # Store the output in a variable
+
+    - name: Display FortiManager facts
+      ansible.builtin.debug:
+        var: fmgr_facts  # Print all facts
