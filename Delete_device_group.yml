@@ -15,10 +15,8 @@
     ansible_user: "admin"
     ansible_password: "admin"
     ansible_host: "192.168.10.6"
-    group_name:
-    - 'HUBs'
-    - 'Spokes'
-    - 'ansible-test'
+    group_name: 'HUBs'
+  
   tasks:
    - name: Device group table.
      fmgr_dvmdb_group:
