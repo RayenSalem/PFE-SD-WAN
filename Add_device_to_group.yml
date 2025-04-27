@@ -25,7 +25,3 @@
           comment: "Ansible-managed"
           # member: "ios-device"  # Only include if needed
 
-    - name: Commit changes
-      fmgr_script_exec:
-        adom: "root"
-        script: "execute commit"
