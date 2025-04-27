@@ -15,17 +15,20 @@
     ansible_user: "admin"
     ansible_password: "admin"
     ansible_host: "192.168.10.6"
-    group_name: 'HUBs'
+    group_names:
+      - 'HUBs'
+      - 'Spokes'
+      - 'ansible-test'
   
   tasks:
-   - name: Device group table.
-     fmgr_dvmdb_group:
+    - name: Device group table
+      fmgr_dvmdb_group:
         bypass_validation: False
         adom: root
         state: absent
         dvmdb_group:
-           desc: '{{ group_name }}'
-          #  meta fields: <value of string>
-           name: '{{ group_name }}'
-           os_type: fos
-           type: normal
+          desc: '{{ item }}'
+          name: '{{ item }}'
+          os_type: fos
+          type: normal
+      loop: "{{ group_names }}"
