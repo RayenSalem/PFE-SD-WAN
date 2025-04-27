@@ -12,11 +12,12 @@
     ansible_password: "admin"
     ansible_host: "192.168.10.6"
 
-
   tasks:
     - name: ADD DEVICES TO DEVICE GROUP
-      fortinet.fortimanager.fmgr_device_group:
-        mode: "add"
-        grp_name: "HUBs"
-        grp_members: "Hub"
-
+      fortinet.fortimanager.fmgr_dvmdb_group:
+        workspace_locking_adom: "root"    # or your ADOM name
+        state: "update"
+        dvmdb_group:
+          name: "HUBs"
+          member:
+            - name: "Hub"
