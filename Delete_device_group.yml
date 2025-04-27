@@ -1,9 +1,3 @@
-# Author: Xing Li
-# Org: Fortinet
-# Date: 2020.09.22
-# Label: group
-# Desc: Device group table
-
 - hosts: fortimanager
   collections:
     - fortinet.fortimanager
@@ -11,40 +5,18 @@
   vars:
     ansible_httpapi_use_ssl: true
     ansible_httpapi_validate_certs: false
+    ansible_httpapi_port: 443
     ansible_network_os: fortinet.fortimanager.fortimanager
     ansible_user: "admin"
     ansible_password: "admin"
     ansible_host: "192.168.10.6"
-    group_names:
-      - 'HUBs'
-      - 'Spokes'
-      - 'ansible-test'
+    group_names: ['HUBs', 'Spokes', 'ansible-test']
   
   tasks:
-    - name: Check if group exists
-      fmgr_fact:
-        facts:
-          selector: 'dvmdb_group'
-          params:
-            adom: root
-            group: '{{ item }}'
-      loop: "{{ group_names }}"
-      register: group_check
-      failed_when: false  # Avoid task failure if the group does not exist
-
-    - name: Delete group if exists
+    - name: Delete groups if they exist
       fmgr_dvmdb_group:
-        bypass_validation: False
         adom: root
         state: absent
-        dvmdb_group:
-          desc: '{{ item }}'
-          name: '{{ item }}'
-          os_type: fos
-          type: normal
+        name: "{{ item }}"
       loop: "{{ group_names }}"
-      when: >
-        group_check.results[{{ loop.index0 }}] is defined and
-        group_check.results[{{ loop.index0 }}].meta is defined and
-        group_check.results[{{ loop.index0 }}].meta.response_data is defined and
-        group_check.results[{{ loop.index0 }}].meta.response_data | length > 0
+      ignore_errors: yes
