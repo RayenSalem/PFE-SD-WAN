@@ -21,7 +21,18 @@
       - 'ansible-test'
   
   tasks:
-    - name: Device group table
+    - name: Check if group exists
+      fmgr_fact:
+        facts:
+          selector: 'dvmdb_group'
+          params:
+            adom: root
+            group: '{{ item }}'
+      loop: "{{ group_names }}"
+      register: group_check
+      failed_when: false  # Avoid task failure if the group does not exist
+
+    - name: Delete group if exists
       fmgr_dvmdb_group:
         bypass_validation: False
         adom: root
@@ -32,3 +43,4 @@
           os_type: fos
           type: normal
       loop: "{{ group_names }}"
+      when: "'response_data' in group_check.results[loop.index0] and group_check.results[loop.index0].meta.response_data != []"
