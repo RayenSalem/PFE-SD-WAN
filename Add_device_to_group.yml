@@ -23,8 +23,8 @@
     - name: ADD DEVICE TO DEVICE GROUP (manually PATCH)
       fortinet.fortimanager.fmgr_generic:
         method: "update"
-        url: "/dvmdb/adom/root/group/HUBs"
         params:
-          - data:
+          - url: "/dvmdb/adom/root/group/HUBs"
+            data:
               member:
                 - name: "Hub"
