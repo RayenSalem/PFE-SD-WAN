@@ -1,6 +1,5 @@
-- name: Add device to group in FortiManager
-  hosts: fortimanager
-  gather_facts: no
+- name: Configure Dynamic Mappings for User Device Group
+  hosts: fortimanagers
   connection: httpapi
   collections:
     - fortinet.fortimanager
@@ -8,66 +7,56 @@
   vars:
     ansible_httpapi_use_ssl: true
     ansible_httpapi_validate_certs: false
-    ansible_network_os: fortinet.fortimanager.fortimanager
+    ansible_httpapi_port: 443
     ansible_user: "admin"
     ansible_password: "admin"
-    ansible_host: "192.168.10.6"
+    ansible_network_os: fortinet.fortimanager.fortimanager
 
-    # Customizable variables
-    target_device: "192.168.1.100"  # The device to add to the group
-    target_group: "MyDeviceGroup"    # The group to add the device to
-    adom: "root"                    # The ADOM to work with
+    # Customizable Variables
+    adom: "ansible"                  # Target ADOM
+    device_group_name: "HUBs" # User Device Group name
+    target_device: "Hub"         # FortiGate device name (must exist)
+    target_vdom: "root"              # VDOM name (default: "root")
 
   tasks:
-    - name: Retrieve device information
+    # Step 1: Verify the User Device Group exists (optional but recommended)
+    - name: Check if User Device Group exists
       fortinet.fortimanager.fmgr_fact:
         facts:
-          selector: 'dvmdb_device'
+          selector: "user_devicegroup"
           params:
             adom: "{{ adom }}"
-            device: "{{ target_device }}"
-      register: device_info
+            device-group: "{{ device_group_name }}"
+      register: group_check
 
-    - name: Verify device exists
-      assert:
-        that:
-          - device_info.meta.response_data is defined
-          - device_info.meta.response_data | length > 0
-        fail_msg: "Device {{ target_device }} not found in ADOM {{ adom }}"
+    - name: Fail if group does not exist
+      ansible.builtin.fail:
+        msg: "User Device Group '{{ device_group_name }}' does not exist in ADOM '{{ adom }}'"
+      when: not group_check.meta.response_data or group_check.meta.response_data | length == 0
 
-    - name: Retrieve group information
-      fortinet.fortimanager.fmgr_fact:
-        facts:
-          selector: 'dvmdb_group'
-          params:
-            adom: "{{ adom }}"
-            group: "{{ target_group }}"
-      register: group_info
-
-    - name: Verify group exists
-      assert:
-        that:
-          - group_info.meta.response_data is defined
-          - group_info.meta.response_data | length > 0
-        fail_msg: "Group {{ target_group }} not found in ADOM {{ adom }}"
-
-    - name: Add device to group
-      fortinet.fortimanager.fmgr_dvmdb_group_member:
+    # Step 2: Configure Dynamic Mapping
+    - name: Add/Update Dynamic Mapping for the User Device Group
+      fortinet.fortimanager.fmgr_user_devicegroup_dynamicmapping:
         adom: "{{ adom }}"
-        group: "{{ target_group }}"
+        device-group: "{{ device_group_name }}"
         state: "present"
-        dvmdb_group_member:
-          name: "{{ target_device }}"
-          vdom: "root"  # Adjust if your device uses a different VDOM
-      register: add_result
+        user_devicegroup_dynamicmapping:
+          _scope:
+            - name: "{{ target_device }}"  # Device must exist in FortiManager
+              vdom: "{{ target_vdom }}"     # Valid VDOM under the device
+          comment: "Managed by Ansible"
+      register: mapping_result
 
+    # Step 3: Commit Changes (required for FortiManager)
     - name: Commit changes to FortiManager
       fortinet.fortimanager.fmgr_exec:
         exec:
           adom: "{{ adom }}"
           scope: "global"
           action: "commit"
+      when: mapping_result is changed
 
-    - name: Display result
-      debug:
-        var: add_result
+    # Step 4: Display Results
+    - name: Show Dynamic Mapping Result
+      ansible.builtin.debug:
+        var: mapping_result
