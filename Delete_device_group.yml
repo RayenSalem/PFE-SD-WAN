@@ -43,4 +43,4 @@
           os_type: fos
           type: normal
       loop: "{{ group_names }}"
-      when: "'response_data' in group_check.results[loop.index0] and group_check.results[loop.index0].meta.response_data != []"
+      when: "'response_data' in group_check.results[{{ loop.index0 }}] and group_check.results[{{ loop.index0 }}].meta.response_data != []"
