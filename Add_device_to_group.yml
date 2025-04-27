@@ -10,22 +10,17 @@
     ansible_password: "admin"
     ansible_host: "192.168.10.6"
   tasks:
-   - name: Device group table creation.
-     fmgr_dvmdb_group:
-        bypass_validation: False
+    - name: Configure dynamic mappings of IPv4 address group
+      fortinet.fortimanager.fmgr_firewall_addrgrp_dynamicmapping:
+        bypass_validation: false
         adom: root
+        addrgrp: "HUBs" # name
         state: present
-        dvmdb_group:
-           desc: 'ansible-test'
-           name: 'HUBs'  # Device group name
-           os_type: fos
-           type: normal
-
-   - name: Add device to device group
-     fmgr_dvmdb_group_member:
-        bypass_validation: False
-        adom: root
-        state: present
-        dvmdb_group_member:
-           group_name: 'HUBs'  # Device group name
-           device_name: 'Hub'  # Device name to add to the group
+        firewall_addrgrp_dynamicmapping:
+          _scope:
+            - name: Hub # need a valid device name
+              vdom: root # need a valid vdom name under the device
+          allow-routing: disable
+          color: 1
+          member: "ansible-test1"
+          visibility: enable
