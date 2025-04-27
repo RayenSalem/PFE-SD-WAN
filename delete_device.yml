@@ -1,4 +1,4 @@
-- name: Delete first FOS devices from FMG In a specific adom
+- name: Delete all FOS devices from FMG In a specific adom
   hosts: fortimanager
   gather_facts: no
   connection: httpapi
@@ -21,32 +21,36 @@
                 device: ''
       register: alldevices
 
-    - when: alldevices.meta.response_data != []
+    - name: debug message for each device
       debug:
         msg:
-         - 'We are going to delete device: {{ alldevices.meta.response_data[0].name }}'
-         - 'IP of the device is: {{ alldevices.meta.response_data[0].ip }}'
+         - 'We are going to delete device: {{ item.name }}'
+         - 'IP of the device is: {{ item.ip }}'
+      loop: "{{ alldevices.meta.response_data }}"
+      when: alldevices.meta.response_data != []
 
-    - when: alldevices.meta.response_data != []
-      name: Create The Task To Delete The Device
+    - name: Create The Task To Delete Each Device
       fmgr_dvm_cmd_del_device:
         dvm_cmd_del_device:
-            device: '{{ alldevices.meta.response_data[0].name }}'
+            device: '{{ item.name }}'
             adom: 'root'
             flags:
              - 'create_task'
              - 'nonblocking'
       register: uninstalling_task
+      loop: "{{ alldevices.meta.response_data }}"
+      when: alldevices.meta.response_data != []
 
-    - when: alldevices.meta.response_data != []
-      name: poll the task
+    - name: poll the task for each device
       fmgr_fact:
         facts:
             selector: 'task_task'
             params:
-                task: '{{uninstalling_task.meta.response_data.taskid}}'
+                task: '{{ uninstalling_task.meta.response_data.taskid }}'
       register: taskinfo
       until: taskinfo.meta.response_data.percent == 100
       retries: 30
       delay: 5
       failed_when: taskinfo.meta.response_data.state == 'error'
+      loop: "{{ alldevices.meta.response_data }}"
+      when: alldevices.meta.response_data != []
