@@ -1,62 +1,29 @@
-- name: Configure Dynamic Mappings for User Device Group (Ansible 2.9.1)
-  hosts: fortimanagers
-  connection: httpapi
+# Author: Xing Li
+# Org: Fortinet
+# Date: 2020.09.25
+# Label: user
+# Desc: Configure dynamic mappings of device group
+- hosts: fortimanager
   collections:
     - fortinet.fortimanager
-
+  connection: httpapi
   vars:
-    ansible_httpapi_use_ssl: yes
-    ansible_httpapi_validate_certs: no
-    ansible_httpapi_port: 443
+    ansible_httpapi_use_ssl: true
+    ansible_httpapi_validate_certs: false
+    ansible_network_os: fortinet.fortimanager.fortimanager
     ansible_user: "admin"
     ansible_password: "admin"
-    ansible_network_os: fortinet.fortimanager.fortimanager
-
-    # Customizable Variables
-    adom: "ansible"
-    device_group_name: "HUBs"
-    target_device: "Hub"
-    target_vdom: "root"
-
+    ansible_host: "192.168.10.6"
   tasks:
-    # Step 1: Verify User Device Group exists
-    - name: Check if User Device Group exists
-      fmgr_fact:
-        facts:
-          selector: "user_devicegroup"
-          params:
-            adom: "{{ adom }}"
-            device-group: "{{ device_group_name }}"
-      register: group_check
-
-    - name: Fail if group does not exist
-      fail:
-        msg: "User Device Group '{{ device_group_name }}' does not exist in ADOM '{{ adom }}'"
-      when: not group_check.meta.response_data or group_check.meta.response_data | length == 0
-
-    # Step 2: Configure Dynamic Mapping
-    - name: Add Dynamic Mapping to User Device Group
-      fmgr_user_devicegroup_dynamicmapping:
-        adom: "{{ adom }}"
-        device-group: "{{ device_group_name }}"
-        state: "present"
+   - name: Configure dynamic mappings of device group
+     fmgr_user_devicegroup_dynamicmapping:
+        bypass_validation: False
+        adom: root
+        device-group: HUBs 
+        state: present
         user_devicegroup_dynamicmapping:
-          _scope:
-            - name: "{{ target_device }}"
-              vdom: "{{ target_vdom }}"
-          comment: "Managed by Ansible"
-      register: mapping_result
-
-    # Step 3: Commit changes (Ansible 2.9.1 compatible method)
-    - name: Commit changes using fmgr_script_exec
-      fmgr_script_exec:
-        adom: "{{ adom }}"
-        script: |
-          print("Committing changes in ADOM {{ adom }}");
-          execute commit;
-      when: mapping_result is changed
-
-    # Step 4: Show results
-    - name: Display the result
-      debug:
-        var: mapping_result
+           _if_unmanaged: 10
+           _scope:
+             -
+                 name: Hub # need a valid device name
+                 vdom: root # need a valid vdom name under the device
