@@ -10,17 +10,11 @@
     ansible_password: "admin"
     ansible_host: "192.168.10.6"
   tasks:
-    - name: Configure dynamic mappings of IPv4 address group
-      fortinet.fortimanager.fmgr_firewall_addrgrp_dynamicmapping:
-        bypass_validation: false
-        adom: root
-        addrgrp: "HUBs" # name
-        state: present
-        firewall_addrgrp_dynamicmapping:
-          _scope:
-            - name: Hub # need a valid device name
-              vdom: root # need a valid vdom name under the device
-          allow-routing: disable
-          color: 1
-          member: "172.21.0.254"
-          visibility: enable
+    - name: Add device to the group
+      fortinet.fortimanager.fmgr_dvmdb_group_objectmember:
+        adom: "root"  # Administrative Domain, most likely "root"
+        group: "HUBs"  # Name of the device group
+        state: "present"  # To add the device to the group
+        dvmdb_group_objectmember:
+          name: "Hub"  # The device name
+          vdom: "root"  # Virtual Domain (usually "root" unless custom VDOM is used)
