@@ -10,6 +10,7 @@
     ansible_httpapi_port: 443
     ansible_user: "admin"             # Required
     ansible_password: "admin"      # Required
+    ansible_host: "192.168.10.6"
     ansible_collections_warnings: False  # Suppresses warnings
 
   tasks:
