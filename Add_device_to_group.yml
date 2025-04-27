@@ -13,11 +13,16 @@
     ansible_host: "192.168.10.6"
 
   tasks:
-    - name: ADD DEVICES TO DEVICE GROUP
+    - name: CREATE DEVICE GROUP (if not exists)
       fortinet.fortimanager.fmgr_dvmdb_group:
-        adom: "root"  
+        adom: "root"
         state: "present"
         dvmdb_group:
           name: "HUBs"
-          member:
-            - name: "Hub"
+
+    - name: ADD DEVICES TO DEVICE GROUP
+      fortinet.fortimanager.fmgr_dvmdb_group_adddevlist:
+        adom: "root"
+        group: "HUBs"
+        add_dev_list:
+          - name: "Hub"
