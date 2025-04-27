@@ -14,8 +14,8 @@
     ansible_host: "192.168.10.6"
 
     # Customizable variables
-    target_device: "172.21.0.254"  # The device to add to the group
-    target_group: "HUBs"    # The group to add the device to
+    target_device: "192.168.1.100"  # The device to add to the group
+    target_group: "MyDeviceGroup"    # The group to add the device to
     adom: "root"                    # The ADOM to work with
 
   tasks:
@@ -52,11 +52,11 @@
         fail_msg: "Group {{ target_group }} not found in ADOM {{ adom }}"
 
     - name: Add device to group
-      fortinet.fortimanager.fmgr_dvmdb_group_devmember:
+      fortinet.fortimanager.fmgr_dvmdb_group_member:
         adom: "{{ adom }}"
         group: "{{ target_group }}"
         state: "present"
-        dvmdb_group_devmember:
+        dvmdb_group_member:
           name: "{{ target_device }}"
           vdom: "root"  # Adjust if your device uses a different VDOM
       register: add_result
