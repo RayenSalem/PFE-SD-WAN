@@ -1,0 +1,33 @@
+# Author: Xing Li
+# Org: Fortinet
+# Date: 2020.09.22
+# Label: group
+# Desc: Device group table
+
+- hosts: fortimanager
+  collections:
+    - fortinet.fortimanager
+  connection: httpapi
+  vars:
+    ansible_httpapi_use_ssl: true
+    ansible_httpapi_validate_certs: false
+    ansible_network_os: fortinet.fortimanager.fortimanager
+    ansible_user: "admin"
+    ansible_password: "admin"
+    ansible_host: "192.168.10.6"
+    group_name:
+    - 'HUBs'
+    - 'Spokes'
+    - 'ansible-test'
+  tasks:
+   - name: Device group table.
+     fmgr_dvmdb_group:
+        bypass_validation: False
+        adom: root
+        state: absent
+        dvmdb_group:
+           desc: '{{ group_name }}'
+          #  meta fields: <value of string>
+           name: '{{ group_name }}'
+           os_type: fos
+           type: normal
