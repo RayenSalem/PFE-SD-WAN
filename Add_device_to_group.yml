@@ -11,18 +11,24 @@
     ansible_user: "admin"
     ansible_password: "admin"
     ansible_host: "192.168.10.6"
-    ansible_collections_warnings: False  # Suppresses warnings
+
 
   tasks:
-    - name: Configure dynamic mappings
-      fmgr_user_devicegroup_dynamicmapping:
-        adom: "ansible"
-        device-group: "HUBs"
-        state: "present"
+   - name: Configure dynamic mappings of device group
+     fmgr_user_devicegroup_dynamicmapping:
+        bypass_validation: False
+        # workspace_locking_adom: <value in [global, custom adom including root]>
+        # workspace_locking_timeout: 300
+        # rc_succeeded: [0, -2, -3, ...]
+        # rc_failed: [-2, -3, ...]
+        adom: root
+        device-group: HUBs # name
+        state: present
         user_devicegroup_dynamicmapping:
-          _scope:
-            - name: "Hub"   # Must exist in FortiManager
-              vdom: "root"       # Valid VDOM
-          comment: "Ansible-managed"
-          # member: "ios-device"  # Only include if needed
+           _if_unmanaged: 10
+           _scope:
+             -
+                 name: Hub # need a valid device name
+                 vdom: root # need a valid vdom name under the device
+           comment: ansible-comment
 
