@@ -2,15 +2,6 @@
   collections:
     - fortinet.fortimanager
   connection: httpapi
-  vars:
-    ansible_httpapi_use_ssl: true
-    ansible_httpapi_validate_certs: false
-    ansible_httpapi_port: 443
-    ansible_network_os: fortinet.fortimanager.fortimanager
-    ansible_user: "admin"
-    ansible_password: "admin"
-    ansible_host: "192.168.10.6"
-    group_names: ['HUBs', 'Spokes', 'ansible-test']
   
   tasks:
     - name: Delete groups if they exist
