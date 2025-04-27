@@ -1,0 +1,73 @@
+- name: Add device to group in FortiManager
+  hosts: fortimanager
+  gather_facts: no
+  connection: httpapi
+  collections:
+    - fortinet.fortimanager
+
+  vars:
+    ansible_httpapi_use_ssl: true
+    ansible_httpapi_validate_certs: false
+    ansible_network_os: fortinet.fortimanager.fortimanager
+    ansible_user: "admin"
+    ansible_password: "admin"
+    ansible_host: "192.168.10.6"
+
+    # Customizable variables
+    target_device: "172.21.0.254"  # The device to add to the group
+    target_group: "HUBs"    # The group to add the device to
+    adom: "root"                    # The ADOM to work with
+
+  tasks:
+    - name: Retrieve device information
+      fortinet.fortimanager.fmgr_fact:
+        facts:
+          selector: 'dvmdb_device'
+          params:
+            adom: "{{ adom }}"
+            device: "{{ target_device }}"
+      register: device_info
+
+    - name: Verify device exists
+      assert:
+        that:
+          - device_info.meta.response_data is defined
+          - device_info.meta.response_data | length > 0
+        fail_msg: "Device {{ target_device }} not found in ADOM {{ adom }}"
+
+    - name: Retrieve group information
+      fortinet.fortimanager.fmgr_fact:
+        facts:
+          selector: 'dvmdb_group'
+          params:
+            adom: "{{ adom }}"
+            group: "{{ target_group }}"
+      register: group_info
+
+    - name: Verify group exists
+      assert:
+        that:
+          - group_info.meta.response_data is defined
+          - group_info.meta.response_data | length > 0
+        fail_msg: "Group {{ target_group }} not found in ADOM {{ adom }}"
+
+    - name: Add device to group
+      fortinet.fortimanager.fmgr_dvmdb_group_devmember:
+        adom: "{{ adom }}"
+        group: "{{ target_group }}"
+        state: "present"
+        dvmdb_group_devmember:
+          name: "{{ target_device }}"
+          vdom: "root"  # Adjust if your device uses a different VDOM
+      register: add_result
+
+    - name: Commit changes to FortiManager
+      fortinet.fortimanager.fmgr_exec:
+        exec:
+          adom: "{{ adom }}"
+          scope: "global"
+          action: "commit"
+
+    - name: Display result
+      debug:
+        var: add_result
