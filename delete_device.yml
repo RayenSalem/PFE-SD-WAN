@@ -34,16 +34,4 @@
       loop: "{{ alldevices.meta.response_data }}"
       when: alldevices.meta.response_data != []
 
-    - name: poll the task for each device
-      fmgr_fact:
-        facts:
-            selector: 'task_task'
-            params:
-                task: '{{ uninstalling_task.meta.response_data.taskid }}'
-      register: taskinfo
-      until: taskinfo.meta.response_data.percent == 100
-      retries: 30
-      delay: 5
-      failed_when: taskinfo.meta.response_data.state == 'error'
-      loop: "{{ alldevices.meta.response_data }}"
-      when: alldevices.meta.response_data != []
+   
