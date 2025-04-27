@@ -16,7 +16,7 @@
     - name: ADD DEVICES TO DEVICE GROUP
       fortinet.fortimanager.fmgr_dvmdb_group:
         adom: "root"  
-        state: "update"
+        state: "present"
         dvmdb_group:
           name: "HUBs"
           member:
