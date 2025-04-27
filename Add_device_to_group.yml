@@ -1,6 +1,4 @@
----
-- name: Configure FortiManager User Device Group
-  hosts: fortimanager
+- hosts: fortimanager-inventory
   collections:
     - fortinet.fortimanager
   connection: httpapi
@@ -11,28 +9,20 @@
     ansible_user: "admin"
     ansible_password: "admin"
     ansible_host: "192.168.10.6"
-
   tasks:
-    - name: CREATE DEVICE GROUP (if not exists)
-      fortinet.fortimanager.fmgr_dvmdb_group:
-        adom: "root"
-        state: "present"
-        dvmdb_group:
-          name: "HUBs"
-
-    - name: Validate if the device group exists
-      fortinet.fortimanager.fmgr_dvmdb_group:
-        adom: "root"
-        state: "present"
-        dvmdb_group:
-          name: "HUBs"
-      register: group_check
-
-    - name: ADD DEVICE TO DEVICE GROUP (correct way)
-      fortinet.fortimanager.fmgr_generic:
-        method: "add"
-        params:
-          - url: "/dvmdb/adom/root/group/HUBs/member"
-            data:
-              - name: "FGVMEVP2FXWKMA7E"
-      when: group_check is success
+   - name: Configure device groups
+     fmgr_user_devicegroup:
+        bypass_validation: False
+        workspace_locking_adom: root
+        workspace_locking_timeout: 300
+        rc_succeeded: [0, -2, -3]
+        rc_failed: [-2, -3]
+        adom: root
+        state: present
+        user_devicegroup:
+           _if_unmanaged: 0
+           comment: "Device group HUBs"
+           dynamic_mapping: []
+           member:
+             - "Hub"  # Device name
+           name: "HUBs"  # Device group name
