@@ -1,4 +1,4 @@
-- hosts: fortimanager-inventory
+- hosts: fortimanager
   collections:
     - fortinet.fortimanager
   connection: httpapi
