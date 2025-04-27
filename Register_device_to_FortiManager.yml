@@ -9,16 +9,6 @@
   connection: httpapi
   collections:
     - fortinet.fortimanager
-  vars:
-    ansible_httpapi_use_ssl: true
-    ansible_httpapi_validate_certs: false
-    ansible_network_os: fortinet.fortimanager.fortimanager
-    ansible_user: "admin"
-    ansible_password: "admin"
-    ansible_host: "192.168.10.6"
-    fos_user: "admin"
-    fos_pass: "admin"
-    fos_ip: "172.21.0.254"
   tasks:
     - name: discover device
       fmgr_dvm_cmd_discover_device:
