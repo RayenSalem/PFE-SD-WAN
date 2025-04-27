@@ -15,7 +15,7 @@
 
   tasks:
     - name: ADD DEVICES TO DEVICE GROUP
-      fmgr_device_group:
+      fortinet.fortimanager.fmgr_device_group:
         mode: "add"
         grp_name: "HUBs"
         grp_members: "Hub"
