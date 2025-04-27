@@ -14,21 +14,9 @@
 
 
   tasks:
-   - name: Configure dynamic mappings of device group
-     fmgr_user_devicegroup_dynamicmapping:
-        bypass_validation: False
-        # workspace_locking_adom: <value in [global, custom adom including root]>
-        # workspace_locking_timeout: 300
-        # rc_succeeded: [0, -2, -3, ...]
-        # rc_failed: [-2, -3, ...]
-        adom: root
-        device-group: HUBs # name
-        state: present
-        user_devicegroup_dynamicmapping:
-           _if_unmanaged: 10
-           _scope:
-             -
-                 name: Hub # need a valid device name
-                 vdom: root # need a valid vdom name under the device
-           comment: ansible-comment
+    - name: ADD DEVICES TO DEVICE GROUP
+      fmgr_device_group:
+        mode: "add"
+        grp_name: "HUBs"
+        grp_members: "Hub"
 
