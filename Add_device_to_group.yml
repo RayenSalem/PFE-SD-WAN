@@ -15,7 +15,7 @@
   tasks:
     - name: ADD DEVICES TO DEVICE GROUP
       fortinet.fortimanager.fmgr_dvmdb_group:
-        workspace_locking_adom: "root"    # or your ADOM name
+        adom: "root"  
         state: "update"
         dvmdb_group:
           name: "HUBs"
