@@ -10,19 +10,22 @@
     ansible_password: "admin"
     ansible_host: "192.168.10.6"
   tasks:
-   - name: Configure device groups
-     fmgr_user_devicegroup:
+   - name: Device group table creation.
+     fmgr_dvmdb_group:
         bypass_validation: False
-        workspace_locking_adom: root
-        workspace_locking_timeout: 300
-        rc_succeeded: [0, -2, -3]
-        rc_failed: [-2, -3]
         adom: root
         state: present
-        user_devicegroup:
-           _if_unmanaged: 0
-           comment: "Device group HUBs"
-           dynamic_mapping: []
-           member:
-             - "Hub"  # Device name
-           name: "HUBs"  # Device group name
+        dvmdb_group:
+           desc: 'ansible-test'
+           name: 'HUBs'  # Device group name
+           os_type: fos
+           type: normal
+
+   - name: Add device to device group
+     fmgr_dvmdb_group_member:
+        bypass_validation: False
+        adom: root
+        state: present
+        dvmdb_group_member:
+           group_name: 'HUBs'  # Device group name
+           device_name: 'Hub'  # Device name to add to the group
