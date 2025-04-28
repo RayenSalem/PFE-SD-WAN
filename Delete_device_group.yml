@@ -18,7 +18,7 @@
 
     - name: Set a list of existing group names
       set_fact:
-        existing_groups: "{{ group_facts }}"
+        existing_groups: "{{ group_facts.meta.response_data | map(attribute='name') | list }}"
     
     - name: Debug existing group names
       debug:
