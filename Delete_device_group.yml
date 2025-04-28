@@ -6,6 +6,8 @@
   tasks:
     - name: Delete groups
       fmgr_dvmdb_group:
-        adom: root
-        state: absent
-        name: "HUBs "
+        adom: "root"
+        state: "absent"
+        dvmdb_group:
+          name: "{{ group_names }}"
+
