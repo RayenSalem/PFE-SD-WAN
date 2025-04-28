@@ -1,0 +1,40 @@
+---
+- name: Configure IPsec VPN Template in FortiManager
+  hosts: localhost
+  connection: local
+  vars:
+    ansible_httpapi_use_ssl: true
+    ansible_httpapi_validate_certs: false
+    ansible_network_os: fortinet.fortimanager.fortimanager
+    fmg_host: "192.168.10.6"
+    fmg_username: "admin"
+    fmg_password: "root"
+    fmg_adom: "root"
+    template_name: "testtttt"
+
+  tasks:
+    - name: Create IPsec VPN template
+      fortinet.fortimanager.fmgr_vpnmgr_node:
+        adom: "{{ fmg_adom }}"
+        state: "present"
+        vpnmgr_node:
+          name: "{{ template_name }}"
+          type: "ipsec"
+          comments: "Created by Ansible"
+          ipsec:
+            ike-version: "2"
+            interface: "port1"
+            local-gw: "0.0.0.0"
+            mode: "aggressive"
+            proposal: "aes256-sha256"
+            psksecret: "{{ vault_ipsec_psk }}"
+            dpd: "on-demand"
+            dpd-retryinterval: "30"
+            auto-negotiate: "enable"
+            keylife: "86400"
+            replay: "enable"
+        host: "{{ fmg_host }}"
+        username: "{{ fmg_username }}"
+        password: "{{ fmg_password }}"
+        validate_certs: false
+      register: ipsec_result
