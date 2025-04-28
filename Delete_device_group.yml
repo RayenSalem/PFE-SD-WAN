@@ -32,6 +32,7 @@
         dvmdb_group:
           name: "{{ item }}"
       loop: "{{ existing_groups }}"
+      when: item != 'All_FortiGate' 
 
     - name: No groups found, skipping deletion
       when: existing_groups | length == 0
