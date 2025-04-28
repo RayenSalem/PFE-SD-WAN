@@ -21,6 +21,7 @@
         adom: "{{ fmg_adom }}"
         state: "present"
         vpnmgr_node:
+          id: 1 
           name: "{{ template_name }}"
           type: "ipsec"
           comments: "Created by Ansible"
