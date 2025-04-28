@@ -2,7 +2,13 @@
   collections:
     - fortinet.fortimanager
   connection: httpapi
-  
+  vars:
+    groups:
+      - name: "HUBs"
+        desc: "HUB devices"
+      - name: "spokes"
+        desc: "Spoke devices"
+
   tasks:
     - name: Create device groups for HUBs and spokes.
       fmgr_dvmdb_group:
