@@ -4,8 +4,8 @@
   connection: httpapi
   
   tasks:
-    - name: Delete groups if they exist
+    - name: Delete groups
       fmgr_dvmdb_group:
         adom: root
         state: absent
-        name: "{{ group_names }}"
+        name: "HUBs "
