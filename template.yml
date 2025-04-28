@@ -1,7 +1,9 @@
 ---
 - name: Configure IPsec VPN Template in FortiManager
-  hosts: localhost
-  connection: local
+- hosts: fortimanager
+  collections:
+    - fortinet.fortimanager
+  connection: httpapi
   vars:
     ansible_httpapi_use_ssl: true
     ansible_httpapi_validate_certs: false
