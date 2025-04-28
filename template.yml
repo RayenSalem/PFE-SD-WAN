@@ -1,6 +1,6 @@
 ---
 - name: Configure IPsec VPN Template in FortiManager
-- hosts: fortimanager
+  hosts: fortimanager
   collections:
     - fortinet.fortimanager
   connection: httpapi
