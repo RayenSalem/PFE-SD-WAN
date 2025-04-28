@@ -3,7 +3,7 @@
     - fortinet.fortimanager
   connection: httpapi
   vars:
-    groups:
+    device_groups:
       - name: "HUBs"
         desc: "HUB devices"
       - name: "spokes"
@@ -20,4 +20,4 @@
           name: "{{ item.name }}"
           os_type: fos
           type: normal
-      loop: "{{ groups }}"
+      loop: "{{ device_groups }}"
