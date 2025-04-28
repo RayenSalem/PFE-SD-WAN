@@ -4,10 +4,36 @@
   connection: httpapi
   
   tasks:
-    - name: Delete groups
+    - name: Retrieve all device groups
+      fortinet.fortimanager.fmgr_fact:
+        facts:
+          selector: 'dvmdb_group'
+          params:
+            adom: 'root'
+            group: ''
+            fields: ['name', 'desc', 'os_type', 'type', 'cluster_type']
+            loadsub: 1
+            range: [0, 100]
+      register: group_facts
+
+    - name: Set a list of existing group names
+      set_fact:
+        existing_groups: "{{ group_facts.meta.response_data | map(attribute='name') | list }}"
+    
+    - name: Debug existing group names
+      debug:
+        msg: "Groups to delete: {{ existing_groups }}"
+    
+    - name: Delete existing groups only if any exist
+      when: existing_groups | length > 0
       fmgr_dvmdb_group:
         adom: "root"
         state: "absent"
         dvmdb_group:
-          name: "{{ group_names }}"
+          name: "{{ item }}"
+      loop: "{{ existing_groups }}"
 
+    - name: No groups found, skipping deletion
+      when: existing_groups | length == 0
+      debug:
+        msg: "No groups to delete."
