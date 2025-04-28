@@ -8,6 +8,4 @@
       fmgr_dvmdb_group:
         adom: root
         state: absent
-        name: "{{ item }}"
-      loop: "{{ group_names }}"
-      ignore_errors: yes
+        name: "{{ group_names }}"
