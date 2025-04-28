@@ -13,6 +13,7 @@
     fmg_password: "root"
     fmg_adom: "root"
     template_name: "testtttt"
+    vault_ipsec_psk: "test"
 
   tasks:
     - name: Create IPsec VPN template
