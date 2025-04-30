@@ -40,7 +40,11 @@
     - name: Add devices to groups based on hostname
       fortinet.fortimanager.fmgr_dvmdb_group_objectmember:
         adom: "root"
-        group: "{{ 'HUBs' if item.hostname is match('^hub', ignorecase=True) else 'spokes' }}"
+        group: >-
+          {% set h = item.hostname | default('') | lower | trim %}
+          {% if h.startswith('hub') %}HUBs
+          {% elif h.startswith('spoke') %}SPOKEs
+          {% else %}UNGROUPED{% endif %}
         state: "present"
         dvmdb_group_objectmember:
           name: "{{ item.name }}"
@@ -48,6 +52,8 @@
       loop: "{{ device_facts.meta.response_data }}"
       when:
         - item.name is defined
-        - item.hostname is match('^hub', ignorecase=True) or item.hostname is match('^spoke', ignorecase=True)
+        - item.hostname is defined
+        - (item.hostname | lower | trim).startswith('hub') or (item.hostname | lower | trim).startswith('spoke')
       loop_control:
         label: "{{ item.name }}"
+
