@@ -43,7 +43,7 @@
         group: >-
           {% set h = item.hostname | default('') | lower | trim %}
           {% if h.startswith('hub') %}HUBs
-          {% elif h.startswith('spoke') %}SPOKEs
+          {% elif h.startswith('spoke') %}spokes
           {% else %}UNGROUPED{% endif %}
         state: "present"
         dvmdb_group_objectmember:
