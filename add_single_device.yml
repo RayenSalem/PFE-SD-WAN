@@ -1,0 +1,42 @@
+- name: Discover device {{ current_ip }}
+  fmgr_dvm_cmd_discover_device:
+    bypass_validation: True
+    dvm_cmd_discover_device:
+        device:
+            adm_pass: '{{ fos_pass }}'
+            adm_usr: '{{ fos_user }}'
+            ip: '{{ current_ip }}'
+  register: probed_device
+  ignore_errors: yes
+
+- name: Add device {{ current_ip }}
+  fmgr_dvm_cmd_add_device:
+    bypass_validation: True
+    dvm_cmd_add_device:
+        adom: 'root'
+        flags:
+          - 'create_task'
+          - 'nonblocking'
+        device:
+            adm_usr: '{{ probed_device.meta.response_data.device.adm_usr }}'
+            adm_pass: '{{ probed_device.meta.response_data.device.adm_pass }}'
+            desc: 'The device is added via FortiManager Ansible'
+            ip: '{{ probed_device.meta.response_data.device.ip }}'
+            mgmt_mode: 'fmg'
+            name: '{{ probed_device.meta.response_data.device.name }}'
+            sn: '{{ probed_device.meta.response_data.device.sn }}'
+  register: installing_task
+  when: probed_device is succeeded
+
+- name: Poll the task for {{ current_ip }}
+  fmgr_fact:
+    facts:
+        selector: 'task_task'
+        params:
+            task: '{{ installing_task.meta.response_data.taskid }}'
+  register: taskinfo
+  until: taskinfo.meta.response_data.percent == 100
+  retries: 30
+  delay: 5
+  failed_when: taskinfo.meta.response_data.state == 'error' and 'devsnexist' not in taskinfo.meta.response_data.line[0].detail
+  when: installing_task is succeeded
