@@ -37,27 +37,38 @@
           name: "SPOKEs"
           desc: "Group for all spoke devices"
 
-    - name: Process discovered devices
+    - name: Determine group membership
+      set_fact:
+        target_group_map: >-
+          {{
+            dict(
+              device_facts.meta.response_data
+              | selectattr("name", "defined")
+              | map(
+                attribute =>
+                  (
+                    attribute.name,
+                    (
+                      'HUBs' if attribute.hostname is match('^hub', ignorecase=True)
+                      else 'spokes' if attribute.hostname is match('^spoke', ignorecase=True)
+                      else 'UNGROUPED'
+                    )
+                  )
+              )
+            )
+          }}
+      when: device_facts.meta.response_data is defined
+
+    - name: Add device to group
+      fortinet.fortimanager.fmgr_dvmdb_group_adddev:
+        adom: "root"
+        group: "{{ target_group_map[item.name] }}"
+        device:
+          name: "{{ item.name }}"
+          vdom: "{{ (item.vdom[0].name | default('root')) if item.vdom is defined else 'root' }}"
       loop: "{{ device_facts.meta.response_data }}"
-      when: 
-        - device_facts.meta.response_data is defined
-        - item.name is defined
       loop_control:
         label: "{{ item.name }}"
-      block:
-        - name: Determine group membership
-          set_fact:
-            target_group: >-
-              {% if item.hostname is match('^hub', ignorecase=True) %}HUBs
-              {% elif item.hostname is match('^spoke', ignorecase=True) %}SPOKEs
-              {% else %}UNGROUPED{% endif %}
-
-        - name: Add device to group
-          fortinet.fortimanager.fmgr_dvmdb_group_adddev:
-            adom: "root"
-            group: "{{ target_group }}"
-            device:
-              name: "{{ item.name }}"
-              vdom: "{{ (item.vdom[0].name | default('root')) if item.vdom is defined else 'root' }}"
-          when: target_group != 'UNGROUPED'
-          ignore_errors: yes
+      when:
+        - target_group_map[item.name] != 'UNGROUPED'
+        - item.name is defined
