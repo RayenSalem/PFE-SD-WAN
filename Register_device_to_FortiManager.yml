@@ -5,12 +5,12 @@
   collections:
     - fortinet.fortimanager
   tasks:
-    - name: discover and add devices
-      vars:
-        current_ip: "{{ item }}"
+    - name: Process each FortiGate device
       loop: "{{ fos_ip }}"
+      loop_control:
+        loop_var: current_ip
       block:
-        - name: discover device
+        - name: Discover device {{ current_ip }}
           fmgr_dvm_cmd_discover_device:
             bypass_validation: True
             dvm_cmd_discover_device:
@@ -20,7 +20,7 @@
                     ip: '{{ current_ip }}'
           register: probed_device
 
-        - name: add device
+        - name: Add device {{ current_ip }}
           fmgr_dvm_cmd_add_device:
             bypass_validation: True
             dvm_cmd_add_device:
@@ -37,15 +37,17 @@
                     name: '{{ probed_device.meta.response_data.device.name }}'
                     sn: '{{ probed_device.meta.response_data.device.sn }}'
           register: installing_task
+          when: probed_device is defined and probed_device.meta.response_data is defined
 
-        - name: poll the task
+        - name: Poll the task for {{ current_ip }}
           fmgr_fact:
             facts:
                 selector: 'task_task'
                 params:
-                    task: '{{installing_task.meta.response_data.taskid}}'
+                    task: '{{ installing_task.meta.response_data.taskid }}'
           register: taskinfo
           until: taskinfo.meta.response_data.percent == 100
           retries: 30
           delay: 5
           failed_when: taskinfo.meta.response_data.state == 'error' and 'devsnexist' not in taskinfo.meta.response_data.line[0].detail
+          when: installing_task is defined and installing_task.meta.response_data is defined
