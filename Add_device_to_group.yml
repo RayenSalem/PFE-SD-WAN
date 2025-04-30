@@ -34,41 +34,20 @@
         adom: "root"
         state: "present"
         dvmdb_group:
-          name: "SPOKEs"
+          name: "spokes"
           desc: "Group for all spoke devices"
 
-    - name: Determine group membership
-      set_fact:
-        target_group_map: >-
-          {{
-            dict(
-              device_facts.meta.response_data
-              | selectattr("name", "defined")
-              | map(
-                attribute =>
-                  (
-                    attribute.name,
-                    (
-                      'HUBs' if attribute.hostname is match('^hub', ignorecase=True)
-                      else 'spokes' if attribute.hostname is match('^spoke', ignorecase=True)
-                      else 'UNGROUPED'
-                    )
-                  )
-              )
-            )
-          }}
-      when: device_facts.meta.response_data is defined
-
-    - name: Add device to group
-      fortinet.fortimanager.fmgr_dvmdb_group_adddev:
+    - name: Add devices to groups based on hostname
+      fortinet.fortimanager.fmgr_dvmdb_group_objectmember:
         adom: "root"
-        group: "{{ target_group_map[item.name] }}"
-        device:
+        group: "{{ 'HUBs' if item.hostname is match('^hub', ignorecase=True) else 'spokes' }}"
+        state: "present"
+        dvmdb_group_objectmember:
           name: "{{ item.name }}"
           vdom: "{{ (item.vdom[0].name | default('root')) if item.vdom is defined else 'root' }}"
       loop: "{{ device_facts.meta.response_data }}"
+      when:
+        - item.name is defined
+        - item.hostname is match('^hub', ignorecase=True) or item.hostname is match('^spoke', ignorecase=True)
       loop_control:
         label: "{{ item.name }}"
-      when:
-        - target_group_map[item.name] != 'UNGROUPED'
-        - item.name is defined
