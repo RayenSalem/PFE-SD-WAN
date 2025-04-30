@@ -10,8 +10,8 @@
     ansible_user: "admin"
     ansible_password: "admin"
     ansible_host: "192.168.10.6"
+
   tasks:
-    # First discover all devices in FortiManager
     - name: Get list of all devices
       fortinet.fortimanager.fmgr_fact:
         facts:
@@ -21,7 +21,6 @@
             fields: ["name", "hostname", "ip", "vdom"]
       register: device_facts
 
-    # Create groups if they don't exist
     - name: Ensure HUBs group exists
       fortinet.fortimanager.fmgr_dvmdb_group:
         adom: "root"
@@ -38,14 +37,19 @@
           name: "SPOKEs"
           desc: "Group for all spoke devices"
 
-    # Add devices to appropriate groups based on hostname
     - name: Process discovered devices
+      loop: "{{ device_facts.meta.response_data }}"
+      when: 
+        - device_facts.meta.response_data is defined
+        - item.name is defined
+      loop_control:
+        label: "{{ item.name }}"
       block:
         - name: Determine group membership
           set_fact:
             target_group: >-
               {% if item.hostname is match('^hub', ignorecase=True) %}HUBs
-              {% elif item.hostname is match('^spoke', ignorecase=True) %}spokes
+              {% elif item.hostname is match('^spoke', ignorecase=True) %}SPOKEs
               {% else %}UNGROUPED{% endif %}
 
         - name: Add device to group
@@ -54,13 +58,6 @@
             group: "{{ target_group }}"
             device:
               name: "{{ item.name }}"
-              vdom: "{{ (item.vdom.0.name | default('root')) if item.vdom is defined else 'root' }}"
+              vdom: "{{ (item.vdom[0].name | default('root')) if item.vdom is defined else 'root' }}"
           when: target_group != 'UNGROUPED'
           ignore_errors: yes
-
-      loop: "{{ device_facts.meta.response_data }}"
-      when: 
-        - device_facts.meta.response_data is defined
-        - item.name is defined
-      loop_control:
-        label: "{{ item.name }}"
