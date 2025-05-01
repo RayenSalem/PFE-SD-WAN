@@ -28,11 +28,9 @@
         dvmdb_group_objectmember:
           name: "{{ device }}"
           vdom: "{{ vdom }}"
-      loop: >
-        [
-          { "group": "HUBs", "devices": "{{ groups.HUB }}" },
-          { "group": "spokes", "devices": "{{ groups.spokes }}" }
-        ]
+      loop:
+        - { group: "HUBs", devices: "{{ groups.HUB }}" }
+        - { group: "spokes", devices: "{{ groups.spokes }}" }
       loop_control:
         label: "{{ item.group }}"
       vars:
