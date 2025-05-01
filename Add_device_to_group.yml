@@ -21,22 +21,6 @@
             fields: ["name", "hostname", "ip", "vdom"]
       register: device_facts
 
-    - name: Ensure HUBs group exists
-      fortinet.fortimanager.fmgr_dvmdb_group:
-        adom: "root"
-        state: "present"
-        dvmdb_group:
-          name: "HUBs"
-          desc: "Group for all hub devices"
-
-    - name: Ensure SPOKEs group exists
-      fortinet.fortimanager.fmgr_dvmdb_group:
-        adom: "root"
-        state: "present"
-        dvmdb_group:
-          name: "spokes"
-          desc: "Group for all spoke devices"
-
     - name: Add devices to groups based on hostname
       vars:
         device_group: >-
