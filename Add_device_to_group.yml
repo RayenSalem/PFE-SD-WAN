@@ -26,7 +26,7 @@
         device_group: >-
           {% set h = item.hostname | default('') | lower | trim %}
           {% if h.startswith('Hub') %}HUBs
-          {% else %}spokes{% endif %}spokes
+          {% else %}spokes{% endif %}
       fortinet.fortimanager.fmgr_dvmdb_group_objectmember:
         adom: "root"
         group: "{{ device_group }}"
