@@ -19,9 +19,55 @@
         facts:
           selector: 'dvmdb_group'
           params:
-            adom: 'root'
+            adom: '{{ adom }}'
             group: ''
             fields: ['name', 'desc', 'os_type', 'type', 'cluster_type']
             loadsub: 1
             range: [0, 100]
       register: group_facts
+
+    - name: Retrieve all managed devices
+      fortinet.fortimanager.fmgr_fact:
+        facts:
+          selector: 'dvmdb_device'
+          params:
+            adom: '{{ adom }}'
+            fields: ['name', 'sn', 'os_type', 'platform_str']
+            loadsub: 1
+            range: [0, 1000]
+      register: device_facts
+
+    - name: Display group information
+      debug:
+        msg: |
+          Found {{ group_facts.meta.response_data | length }} device groups:
+          {% for group in group_facts.meta.response_data %}
+          - {{ group.name }} (Type: {{ group.type }})
+          {% endfor %}
+
+    - name: Display device information
+      debug:
+        msg: |
+          Found {{ device_facts.meta.response_data | length }} managed devices:
+          {% for device in device_facts.meta.response_data %}
+          - {{ device.name }} ({{ device.platform_str }})
+          {% endfor %}
+
+    - name: Validate environment compliance
+      block:
+        - name: Check group count
+          fail:
+            msg: "Too many device groups found ({{ group_facts.meta.response_data | length }}). Maximum allowed: {{ max_allowed_groups }}"
+          when: group_facts.meta.response_data | length > max_allowed_groups
+
+        - name: Check device count
+          fail:
+            msg: "Managed devices found ({{ device_facts.meta.response_data | length }}). Maximum allowed: {{ max_allowed_devices }}"
+          when: device_facts.meta.response_data | length > max_allowed_devices
+
+        - name: Success message
+          debug:
+            msg: "Environment meets compliance requirements"
+      when:
+        - group_facts is not skipped
+        - device_facts is not skipped
