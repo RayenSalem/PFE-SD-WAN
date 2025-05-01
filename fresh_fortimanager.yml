@@ -15,16 +15,18 @@
     - name: Get list of groups in FortiManager
       fortinet.fortimanager.fmgr_dvmdb_group:
         adom: "{{ adom }}"
+        state: "present"  # Correct state argument
       register: groups_response
 
     - name: Get list of devices in FortiManager
       fortinet.fortimanager.fmgr_dvmdb_device:
         adom: "{{ adom }}"
+        state: "present"  # Correct state argument
       register: devices_response
 
     - name: Check if there are more than 2 groups or 1 or more devices
       fail:
         msg: "There are more than 2 groups or 1 or more devices registered in FortiManager."
       when: 
-        - groups_response.results | length > 2
+        - groups_response.results | length >= 2
         - devices_response.results | length > 0
