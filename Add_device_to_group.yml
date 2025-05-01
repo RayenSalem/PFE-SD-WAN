@@ -21,10 +21,11 @@
   tasks:
     - name: Add devices to their respective groups
       fortinet.fortimanager.fmgr_dvmdb_group_objectmember:
+        bypass_validation: true
         adom: "{{ adom }}"
         group: "{{ item.key }}"
         state: "present"
-        proposed_method: "update"
+        proposed_method: "add"
         dvmdb_group_objectmember:
           name: "{{ item.value }}"
           vdom: "{{ vdom }}"
