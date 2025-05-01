@@ -18,16 +18,22 @@
         dvmdb_group_objectmember:
           name: "Hub"  # The device name
           vdom: "root"  # Virtual Domain (usually "root" unless custom VDOM is used)
-    - name: Ensure Spoke devices are in the 'spokes' group (FMGR 2.9.1 compatible)
-      fortinet.fortimanager.fmgr_dvmdb_group:
+    - name: Configure spokes group the old-fashioned way
+      fortinet.fortimanager.fmgr_execute:
         adom: "root"
-        state: "present"
-        dvmdb_group:
-          name: "spokes"
-          member:
-            - name: "{{ item }}"
-              vdom: "root"  # À modifier si les VDOMs sont différents
-      loop:
-        - "spoke1"
-        - "spoke2"
+        exec:
+          method: "add"
+          data:
+            name: "spokes"
+            member:
+              - name: "spoke1"
+                vdom: "root"
+              - name: "spoke2"
+                vdom: "root"
+          url: "/dvmdb/adom/root/group"
+      register: result
+      until: result is not failed
+      retries: 3
+      delay: 5
+            - "spoke2"
       ignore_errors: yes
