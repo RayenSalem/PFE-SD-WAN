@@ -1,10 +1,7 @@
-- name: Gather FortiManager facts
-  hosts: fortimanager
-  gather_facts: no
-  connection: httpapi
+- hosts: fortimanager
   collections:
     - fortinet.fortimanager
-  
+  connection: httpapi
   vars:
     ansible_httpapi_use_ssl: true
     ansible_httpapi_validate_certs: false
@@ -12,27 +9,65 @@
     ansible_user: "admin"
     ansible_password: "admin"
     ansible_host: "192.168.10.6"
-  
+    adom: "root"
+    max_allowed_groups: 1
+    max_allowed_devices: 0
+
   tasks:
     - name: Retrieve all device groups
       fortinet.fortimanager.fmgr_fact:
         facts:
           selector: 'dvmdb_group'
           params:
-            adom: 'root'
+            adom: '{{ adom }}'
             group: ''
-            # Add these parameters to get more complete results
             fields: ['name', 'desc', 'os_type', 'type', 'cluster_type']
-            loadsub: 1  # Load all subgroups
-            range: [0, 100]  # Get first 100 groups
-      
+            loadsub: 1
+            range: [0, 100]
       register: group_facts
-    
-    - name: Display just the group names
+
+    - name: Retrieve all managed devices
+      fortinet.fortimanager.fmgr_fact:
+        facts:
+          selector: 'dvmdb_device'
+          params:
+            adom: '{{ adom }}'
+            fields: ['name', 'sn', 'os_type', 'platform_str']
+            loadsub: 1
+            range: [0, 1000]
+      register: device_facts
+
+    - name: Display group information
       debug:
-        msg: "Found groups: {{ group_facts.meta.response_data | map(attribute='name') | list }}"
-    
-    - name: Display full response (verbose)
+        msg: |
+          Found {{ group_facts.meta.response_data | length }} device groups:
+          {% for group in group_facts.meta.response_data %}
+          - {{ group.name }} (Type: {{ group.type }})
+          {% endfor %}
+
+    - name: Display device information
       debug:
-        var: group_facts
-      
+        msg: |
+          Found {{ device_facts.meta.response_data | length }} managed devices:
+          {% for device in device_facts.meta.response_data %}
+          - {{ device.name }} ({{ device.platform_str }})
+          {% endfor %}
+
+    - name: Validate environment compliance
+      block:
+        - name: Check group count
+          fail:
+            msg: "Too many device groups found ({{ group_facts.meta.response_data | length }}). Maximum allowed: {{ max_allowed_groups }}"
+          when: group_facts.meta.response_data | length > max_allowed_groups
+
+        - name: Check device count
+          fail:
+            msg: "Managed devices found ({{ device_facts.meta.response_data | length }}). Maximum allowed: {{ max_allowed_devices }}"
+          when: device_facts.meta.response_data | length > max_allowed_devices
+
+        - name: Success message
+          debug:
+            msg: "Environment meets compliance requirements"
+      when:
+        - group_facts is not skipped
+        - device_facts is not skipped
