@@ -28,5 +28,6 @@
           name: "{{ item.device }}"
           vdom: "{{ vdom }}"
       loop:
-        - { group: "HUBs", device: "{{ HUB_devices  }}" }
-        - { group: "spokes", device: "{{ spoke_devices }}" }
+        - { group: "HUBs", device: "{{ HUB_devices[0] }}" }
+        - { group: "spokes", device: "{{ spoke_devices[0] }}" }
+        - { group: "spokes", device: "{{ spoke_devices[1] }}" }
