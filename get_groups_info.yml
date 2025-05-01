@@ -1,7 +1,10 @@
-- hosts: fortimanager
+- name: Gather FortiManager facts
+  hosts: fortimanager
+  gather_facts: no
+  connection: httpapi
   collections:
     - fortinet.fortimanager
-  connection: httpapi
+  
   vars:
     ansible_httpapi_use_ssl: true
     ansible_httpapi_validate_certs: false
@@ -9,10 +12,7 @@
     ansible_user: "admin"
     ansible_password: "admin"
     ansible_host: "192.168.10.6"
-    adom: "root"
-    max_allowed_groups: 1
-    max_allowed_devices: 0
-
+  
   tasks:
     - name: Retrieve all device groups
       fortinet.fortimanager.fmgr_fact:
@@ -21,7 +21,18 @@
           params:
             adom: 'root'
             group: ''
+            # Add these parameters to get more complete results
             fields: ['name', 'desc', 'os_type', 'type', 'cluster_type']
-            loadsub: 1
-            range: [0, 100]
+            loadsub: 1  # Load all subgroups
+            range: [0, 100]  # Get first 100 groups
+      
       register: group_facts
+    
+    - name: Display just the group names
+      debug:
+        msg: "Found groups: {{ group_facts.meta.response_data | map(attribute='name') | list }}"
+    
+    - name: Display full response (verbose)
+      debug:
+        var: group_facts
+      

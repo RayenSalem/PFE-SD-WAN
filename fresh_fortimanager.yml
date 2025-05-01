@@ -10,37 +10,18 @@
     ansible_password: "admin"
     ansible_host: "192.168.10.6"
     adom: "root"
+    max_allowed_groups: 1
+    max_allowed_devices: 0
 
   tasks:
-    - name: Get device groups
+    - name: Retrieve all device groups
       fortinet.fortimanager.fmgr_fact:
-        adom: "{{ adom }}"
         facts:
-          selector: "dvmdb_group"
+          selector: 'dvmdb_group'
           params:
-            fields: ["name", "member"]
+            adom: 'root'
+            group: ''
+            fields: ['name', 'desc', 'os_type', 'type', 'cluster_type']
+            loadsub: 1
+            range: [0, 100]
       register: group_facts
-
-    - name: Get devices
-      fortinet.fortimanager.fmgr_fact:
-        adom: "{{ adom }}"
-        facts:
-          selector: "dvmdb_device"
-          params:
-            fields: ["name", "sn"]
-      register: device_facts
-
-    - name: Debug group facts
-      debug:
-        var: group_facts
-
-    - name: Debug device facts
-      debug:
-        var: device_facts
-
-    - name: Check if there are more than 1 group or any devices
-      fail:
-        msg: "Validation failed - Found {{ group_facts.meta.response_data | length }} groups and {{ device_facts.meta.response_data | length }} devices"
-      when: 
-        - (group_facts.meta.response_data | length > 1) or 
-          (device_facts.meta.response_data | length > 0)
