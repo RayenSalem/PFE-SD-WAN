@@ -13,27 +13,26 @@
 
   tasks:
     - name: Gather system group facts from FortiManager
-      fortinet.fortimanager.fmgr_fact:
+      fmgr_fact:
         adom: "{{ adom }}"
         facts:
-          - system_group
-      register: fmgr_groups
+          selector: "system_group"
+          params:
+            fields: ["name", "member"]
+      register: system_group_facts
 
     - name: Gather system device facts from FortiManager
-      fortinet.fortimanager.fmgr_fact:
+      fmgr_fact:
         adom: "{{ adom }}"
         facts:
-          - system_device
-      register: fmgr_devices
+          selector: "system_device"
+          params:
+            fields: ["name", "sn"]
+      register: system_device_facts
 
-    - name: Check if there are more than 2 groups or 1 or more devices
-      debug:
-        msg: "There are more than 2 groups or 1 or more devices registered in FortiManager."
-      when:
-        - (fmgr_groups.ansible_fortimanager.system_group | length > 2) or (fmgr_devices.ansible_fortimanager.system_device | length > 0)
-
-    - name: Fail if conditions are met
+    - name: Check if there are more than 1 groups or 1 or more devices
       fail:
-        msg: "There are more than 2 groups or 1 or more devices registered in FortiManager."
+        msg: "There are more than 1 groups or 1 or more devices registered in FortiManager."
       when:
-        - (fmgr_groups.ansible_fortimanager.system_group | length > 2) or (fmgr_devices.ansible_fortimanager.system_device | length > 0)
+        - (system_group_facts.meta.response_data | length > 1) or 
+          (system_device_facts.meta.response_data | length > 0)
