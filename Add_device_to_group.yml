@@ -9,31 +9,25 @@
     ansible_user: "admin"
     ansible_password: "admin"
     ansible_host: "192.168.10.6"
+
   tasks:
-    - name: Add device to the group
+    - name: Add HUB device to the 'HUBs' group
       fortinet.fortimanager.fmgr_dvmdb_group_objectmember:
-        adom: "root"  # Administrative Domain, most likely "root"
-        group: "HUBs"  # Name of the device group
-        state: "present"  # To add the device to the group
-        dvmdb_group_objectmember:
-          name: "Hub"  # The device name
-          vdom: "root"  # Virtual Domain (usually "root" unless custom VDOM is used)
-    - name: Configure spokes group the old-fashioned way
-      fortinet.fortimanager.fmgr_execute:
         adom: "root"
-        exec:
-          method: "add"
-          data:
-            name: "spokes"
-            member:
-              - name: "spoke1"
-                vdom: "root"
-              - name: "spoke2"
-                vdom: "root"
-          url: "/dvmdb/adom/root/group"
-      register: result
-      until: result is not failed
-      retries: 3
-      delay: 5
-            - "spoke2"
-      ignore_errors: yes
+        group: "HUBs"
+        state: "present"
+        dvmdb_group_objectmember:
+          name: "Hub"
+          vdom: "root"
+
+    - name: Add spoke devices to the 'spokes' group
+      fortinet.fortimanager.fmgr_dvmdb_group_objectmember:
+        adom: "root"
+        group: "spokes"
+        state: "present"
+        dvmdb_group_objectmember:
+          name: "{{ item }}"
+          vdom: "root"
+      loop:
+        - "spoke1"
+        - "spoke2"
