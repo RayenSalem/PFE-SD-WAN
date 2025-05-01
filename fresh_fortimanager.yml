@@ -12,22 +12,13 @@
     adom: "root"
 
   tasks:
-    - name: Get list of groups in FortiManager
-      fortinet.fortimanager.fmgr_dvmdb_group:
+    - name: Gather facts from FortiManager
+      fortinet.fortimanager.fmgr_fact:
         adom: "{{ adom }}"
-        state: "present"  # This ensures we are fetching the existing groups
-      register: groups_response
-
-    - name: Get list of devices in FortiManager
-      fortinet.fortimanager.fmgr_dvmdb_device:
-        adom: "{{ adom }}"
-        state: "present"  # This ensures we are fetching the existing devices
-      register: devices_response
+      register: fmgr_facts
 
     - name: Check if there are more than 2 groups or 1 or more devices
-      block:
-        - name: Fail if there are more than 2 groups or 1 or more devices
-          fail:
-            msg: "There are more than 2 groups or 1 or more devices registered in FortiManager."
+      fail:
+        msg: "There are more than 2 groups or 1 or more devices registered in FortiManager."
       when:
-        - (groups_response.results | length >= 2) or (devices_response.results | length > 0)
+        - (fmgr_facts.ansible_fortimanager.groups | length > 1) or (fmgr_facts.ansible_fortimanager.devices | length > 0)
