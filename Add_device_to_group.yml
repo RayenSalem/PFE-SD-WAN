@@ -1,5 +1,4 @@
-- name: Discover and group devices automatically
-  hosts: fortimanager
+- hosts: fortimanager
   collections:
     - fortinet.fortimanager
   connection: httpapi
@@ -10,36 +9,23 @@
     ansible_user: "admin"
     ansible_password: "admin"
     ansible_host: "192.168.10.6"
-
   tasks:
-    - name: Get list of all devices
-      fortinet.fortimanager.fmgr_fact:
-        facts:
-          selector: "dvmdb_device"
-          params:
-            adom: "root"
-            fields: ["name", "hostname", "ip", "vdom"]
-      register: device_facts
-
-    - name: Add devices to groups based on hostname
-      vars:
-        device_group: >-
-          {% set h = item.hostname | default('') | lower | trim %}
-          {% if h.startswith('Hub') %}HUBs
-          {% else %}spokes{% endif %}
+    - name: Add device to the group
+      fortinet.fortimanager.fmgr_dvmdb_group_objectmember:
+        adom: "root"  # Administrative Domain, most likely "root"
+        group: "HUBs"  # Name of the device group
+        state: "present"  # To add the device to the group
+        dvmdb_group_objectmember:
+          name: "Hub"  # The device name
+          vdom: "root"  # Virtual Domain (usually "root" unless custom VDOM is used)
+    - name: Add Spoke devices to the 'spokes' group
       fortinet.fortimanager.fmgr_dvmdb_group_objectmember:
         adom: "root"
-        group: "{{ device_group }}"
+        group: "spokes"
         state: "present"
         dvmdb_group_objectmember:
-          name: "{{ item.name }}"
-          vdom: "{{ (item.vdom[0].name | default('root')) if item.vdom is defined else 'root' }}"
-      loop: "{{ device_facts.meta.response_data }}"
-      when:
-        - item.name is defined
-        - item.hostname is defined
-        - item.hostname.startswith('Hub') or item.hostname.startswith('spoke')
-      loop_control:
-        label: "{{ item.name }}"
-
-
+          name: "{{ item }}"
+          vdom: "root"
+      loop:
+        - "spoke1"
+        - "spoke2"
