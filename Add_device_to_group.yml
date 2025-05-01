@@ -18,14 +18,15 @@
         dvmdb_group_objectmember:
           name: "Hub"  # The device name
           vdom: "root"  # Virtual Domain (usually "root" unless custom VDOM is used)
-    - name: Add Spoke devices to the 'spokes' group
-      fortinet.fortimanager.fmgr_dvmdb_group_objectmember:
+    - name: Add Spoke devices to 'spokes' group using loop
+      fortinet.fortimanager.fmgr_dvmdb_group_addmember:
         adom: "root"
         group: "spokes"
+        member:
+          - name: "{{ item }}"
+            vdom: "root"   # ⚠️ Remplacez si les VDOMs sont différents
         state: "present"
-        dvmdb_group_objectmember:
-          name: "{{ item }}"
-          vdom: "root"
+        mode: "set"        # Force l'ajout même si le groupe existe déjà
       loop:
         - "spoke1"
         - "spoke2"
