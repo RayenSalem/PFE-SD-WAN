@@ -30,3 +30,4 @@
           name: "{{ item.value }}"
           vdom: "{{ vdom }}"
       loop: "{{ devices | dict2items }}"
+      ignore_errors: true
