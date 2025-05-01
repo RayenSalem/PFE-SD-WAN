@@ -41,7 +41,7 @@
       vars:
         device_group: >-
           {% set h = item.hostname | default('') | lower | trim %}
-          {% if h.startswith('hub') %}HUBs
+          {% if h.startswith('Hub') %}HUBs
           {% elif h.startswith('spoke') %}spokes
           {% else %}UNGROUPED{% endif %}
       fortinet.fortimanager.fmgr_dvmdb_group_objectmember:
@@ -55,7 +55,7 @@
       when:
         - item.name is defined
         - item.hostname is defined
-        - (item.hostname | lower | trim).startswith('hub') or (item.hostname | lower | trim).startswith('spoke')
+        - (item.hostname | lower | trim).startswith('Hub') or (item.hostname | lower | trim).startswith('spoke')
       loop_control:
         label: "{{ item.name }}"
 
