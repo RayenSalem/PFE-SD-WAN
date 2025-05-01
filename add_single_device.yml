@@ -38,5 +38,5 @@
   until: taskinfo.meta.response_data.percent == 100
   retries: 30
   delay: 5
-  failed_when: taskinfo.meta.response_data.state == 'error' and 'devsnexist' not in taskinfo.meta.response_data.line[0].detail
+  failed_when: taskinfo.meta.response_data.state == 'error' 
   when: installing_task is succeeded
