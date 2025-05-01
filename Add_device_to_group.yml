@@ -39,7 +39,7 @@
       when:
         - item.name is defined
         - item.hostname is defined
-        - (item.hostname | lower | trim).startswith('Hub') or (item.hostname | lower | trim).startswith('spoke')
+        - item.hostname.startswith('Hub') or item.hostname.startswith('spoke')
       loop_control:
         label: "{{ item.name }}"
 
