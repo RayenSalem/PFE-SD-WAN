@@ -26,12 +26,15 @@
         state: "present"
         proposed_method: "add"
         dvmdb_group_objectmember:
-          name: "{{ item.name }}"
+          name: "{{ device }}"
           vdom: "{{ vdom }}"
       loop: >
         [
-          { "group": "HUBs", "name": "{{ groups.HUB | join(',') }}" },
-          { "group": "spokes", "name": "{{ groups.spokes | join(',') }}" }
+          { "group": "HUBs", "devices": "{{ groups.HUB }}" },
+          { "group": "spokes", "devices": "{{ groups.spokes }}" }
         ]
       loop_control:
         label: "{{ item.group }}"
+      vars:
+        device: "{{ item.devices }}"
+      with_items: "{{ item.devices }}"
