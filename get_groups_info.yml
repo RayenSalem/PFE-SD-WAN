@@ -18,4 +18,10 @@
       fortinet.fortimanager.fmgr_fact:
         facts:
           selector: 'dvmdb_group'
+          params:
+            adom: 'root'
+            group: ''
+            fields: ['name', 'desc', 'os_type', 'type', 'cluster_type']
+            loadsub: 1
+            range: [0, 100]
       register: group_facts
