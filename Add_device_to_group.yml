@@ -24,7 +24,7 @@
         adom: "{{ adom }}"
         group: "{{ item.key }}"
         state: "present"
-        proposed_method: "add"
+        proposed_method: "update"
         dvmdb_group_objectmember:
           name: "{{ item.value }}"
           vdom: "{{ vdom }}"
