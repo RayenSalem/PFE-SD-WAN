@@ -19,7 +19,6 @@
         facts:
           selector: 'dvmdb_group'
           params:
-            adom: '{{ adom }}'
             group: ''
             fields: ['name', 'desc', 'os_type', 'type', 'cluster_type']
             loadsub: 1
