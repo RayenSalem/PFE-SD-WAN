@@ -25,9 +25,9 @@
         adom: "root"
         group: "spokes"
         state: "present"
+        proposed_method: "add"
         dvmdb_group_objectmember:
           name: "{{ item }}"
-          proposed_method: "add" 
           vdom: "root"
       loop:
         - "spoke1"
