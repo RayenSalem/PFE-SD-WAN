@@ -15,10 +15,13 @@
     - name: Gather facts from FortiManager
       fortinet.fortimanager.fmgr_fact:
         adom: "{{ adom }}"
+        facts:
+          - system_group
+          - system_device
       register: fmgr_facts
 
-    - name: Check if there are more than 2 groups or 1 or more devices
+    - name: Check if there are more than 1 groups or 1 or more devices
       fail:
-        msg: "There are more than 2 groups or 1 or more devices registered in FortiManager."
+        msg: "There are more than 1 groups or 1 or more devices registered in FortiManager."
       when:
-        - (fmgr_facts.ansible_fortimanager.groups | length > 1) or (fmgr_facts.ansible_fortimanager.devices | length > 0)
+        - (fmgr_facts.ansible_fortimanager.system_group | length > 1) or (fmgr_facts.ansible_fortimanager.system_device | length > 0)
