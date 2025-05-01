@@ -30,9 +30,17 @@
             fields: ["name", "sn"]
       register: device_facts
 
-    - name: Check if there are more than 1 groups or 1 or more devices
+    - name: Debug group facts
+      debug:
+        var: group_facts
+
+    - name: Debug device facts
+      debug:
+        var: device_facts
+
+    - name: Check if there are more than 1 group or any devices
       fail:
-        msg: "There are more than 1 groups or 1 or more devices registered in FortiManager."
+        msg: "Validation failed - Found {{ group_facts.meta.response_data | length }} groups and {{ device_facts.meta.response_data | length }} devices"
       when: 
         - (group_facts.meta.response_data | length > 1) or 
           (device_facts.meta.response_data | length > 0)
