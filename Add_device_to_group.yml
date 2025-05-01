@@ -10,29 +10,23 @@
     ansible_password: "admin"
     ansible_host: "192.168.10.6"
     adom: "root"
-    groups:
-      HUB:
-        - "Hub"
-      spokes:
-        - "spoke1"
-        - "spoke2"
+    HUB_devices:
+      - "Hub"
+    spoke_devices:
+      - "spoke1"
+      - "spoke2"
     vdom: "root"
 
   tasks:
-    - name: Add devices to their respective groups
+    - name: Add devices to respective groups
       fortinet.fortimanager.fmgr_dvmdb_group_objectmember:
         adom: "{{ adom }}"
         group: "{{ item.group }}"
         state: "present"
         proposed_method: "add"
         dvmdb_group_objectmember:
-          name: "{{ device }}"
+          name: "{{ item.device }}"
           vdom: "{{ vdom }}"
       loop:
-        - { group: "HUBs", devices: "{{ groups.HUB }}" }
-        - { group: "spokes", devices: "{{ groups.spokes }}" }
-      loop_control:
-        label: "{{ item.group }}"
-      vars:
-        device: "{{ item.devices }}"
-      with_items: "{{ item.devices }}"
+        - { group: "HUBs", device: "{{ HUB_devices | first }}" }
+        - { group: "spokes", device: "{{ spoke_devices | first }}" }
