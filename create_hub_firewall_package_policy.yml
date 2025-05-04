@@ -9,4 +9,4 @@
         adom: "root"
         pkg: "Hub1"
         state: "present"
-        pkg_firewall_policy: {}
+
