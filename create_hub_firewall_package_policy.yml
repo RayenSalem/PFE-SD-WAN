@@ -1,12 +1,88 @@
-- name: Test connection
+---
+- name: Configure FortiManager Firewall Policies
   hosts: fortimanager
   connection: httpapi
   gather_facts: false
-  tasks:
-    - name: Test HTTP API connection
-      fortinet.fortimanager.fmgr_pkg_firewall_policy:
-        bypass_validation: false
-        adom: "root"
-        pkg: "Hub1"
-        state: "present"
+  vars:
+    ansible_httpapi_use_ssl: true
+    ansible_httpapi_validate_certs: false
+    ansible_httpapi_port: 443
 
+    firewall_policies:
+      - policyid: 2
+        name: "sd-wan-out"
+        action: "accept"
+        srcintf: ["port1"]
+        dstintf: ["overlay"]
+        srcaddr: ["all"]
+        dstaddr: ["all"]
+        service: ["ALL"]
+        schedule: ["always"]
+        nat: "disable"
+        status: "enable"
+        logtraffic: "utm"
+        profile-protocol-options: ["default"]
+        ssl-ssh-profile: ["no-inspection"]
+        auto-asic-offload: "enable"
+        np-acceleration: "enable"
+
+      - policyid: 3
+        name: "sd-wan-in"
+        action: "accept"
+        srcintf: ["overlay"]
+        dstintf: ["port1"]
+        srcaddr: ["all"]
+        dstaddr: ["all"]
+        service: ["ALL"]
+        schedule: ["always"]
+        nat: "disable"
+        status: "enable"
+        logtraffic: "utm"
+        comments: " (Reverse of sd-wan-out)"
+        profile-protocol-options: ["default"]
+        ssl-ssh-profile: ["no-inspection"]
+        auto-asic-offload: "enable"
+        np-acceleration: "enable"
+
+      - policyid: 4
+        name: "vpn2vpn"
+        action: "accept"
+        srcintf: ["overlay"]
+        dstintf: ["overlay"]
+        srcaddr: ["all"]
+        dstaddr: ["all"]
+        service: ["ALL"]
+        schedule: ["always"]
+        nat: "disable"
+        status: "enable"
+        logtraffic: "utm"
+        profile-protocol-options: ["default"]
+        ssl-ssh-profile: ["no-inspection"]
+        auto-asic-offload: "enable"
+        np-acceleration: "enable"
+
+    # Package details
+    package_name: "Hub1"
+    adom: "root"
+
+  tasks:
+    - name: Create package if it doesn't exist
+      fortios_system_package:
+        adom: "{{ adom }}"
+        name: "{{ package_name }}"
+        state: "present"
+        version: "1"  # Or specify your desired version
+      register: pkg_result
+
+    - name: Create firewall policies
+      fortios_firewall_policy:
+        adom: "{{ adom }}"
+        pkg: "{{ package_name }}"
+        state: "present"
+        firewall_policy: "{{ item }}"
+      loop: "{{ firewall_policies }}"
+      register: policy_results
+
+    - name: Show policy creation results
+      ansible.builtin.debug:
+        var: policy_results.results
