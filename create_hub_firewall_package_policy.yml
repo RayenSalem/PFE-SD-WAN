@@ -66,12 +66,6 @@
     adom: "root"
 
   tasks:
-    - name: Create package if it doesn't exist
-      fortinet.fortimanager.fmgr_pkg:
-        adom: "{{ adom }}"
-        pkg: "{{ package_name }}"
-        state: "present"
-      register: pkg_result
 
     - name: Create firewall policies
       fortinet.fortimanager.fmgr_pkg_firewall_policy:
