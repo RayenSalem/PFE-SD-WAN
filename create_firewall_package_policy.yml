@@ -1,16 +1,2 @@
-
-- name: Master playbook
-  hosts: fortimanager
-  connection: httpapi
-  gather_facts: false
-  vars:
-    ansible_httpapi_use_ssl: true
-    ansible_httpapi_validate_certs: false
-    ansible_httpapi_port: 443
-
-  tasks:
-    - name: Create hub firewall package policy
-      include_tasks: create_hub_firewall_package_policy.yml
-
-    - name: Create spokes firewall package policy
-      include_tasks: create_spokes_firewall_package_policy.yml
+- import_playbook: create_hub_firewall_package_policy.yml
+- import_playbook: create_spokes_firewall_package_policy.yml
