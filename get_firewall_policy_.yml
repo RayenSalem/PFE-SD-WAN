@@ -1,5 +1,5 @@
 - name: Gathering fortimanager facts
-  hosts: fortimanagers
+  hosts: fortimanager
   gather_facts: false
   connection: httpapi
   vars:
