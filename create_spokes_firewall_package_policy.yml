@@ -42,24 +42,7 @@
         auto-asic-offload: "enable"
         np-acceleration: "enable"
 
-      - policyid: 4
-        name: "vpn2vpn"
-        action: "accept"
-        srcintf: "overlay"
-        dstintf: "overlay"
-        srcaddr: "all"
-        dstaddr: "all"
-        service: "ALL"
-        schedule: "always"
-        nat: "disable"
-        status: "enable"
-        logtraffic: "utm"
-        ssl-ssh-profile: "no-inspection"
-        auto-asic-offload: "enable"
-        np-acceleration: "enable"
-
-    # Package details
-    package_name: "Hub"
+    package_name: "Spokes"
     adom: "root"
 
   tasks:
