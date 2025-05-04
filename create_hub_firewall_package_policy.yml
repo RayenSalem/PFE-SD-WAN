@@ -14,13 +14,14 @@
       - { policyid: 4, name: "vpn2vpn", action: "accept", srcintf: "overlay", dstintf: "overlay", srcaddr: "all", dstaddr: "all", service: "ALL", schedule: "always", nat: "disable", status: "enable", logtraffic: "utm", profile_protocol_options: "default", ssl_ssh_profile: "no-inspection", auto_asic_offload: "enable", np_acceleration: "enable" }
 
   tasks:
-    - name: Create policy package 'Hub1' if it doesn't exist
-      fortinet.fortimanager.fmgr_pkg:
+
+    - name: Create firewall policy package 'Hub1'
+      fortinet.fortimanager.fmgr_pkg_firewall_policy:
+        bypass_validation: false
         adom: root
-        pkg: Hub1
+        pkg: "Hub1"
         state: present
-        pkg_type: firewall
-        
+
     - name: Create firewall policies in Hub package
       fortinet.fortimanager.fmgr_pkg_firewall_policy:
         bypass_validation: false
