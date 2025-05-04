@@ -68,7 +68,7 @@
         state: present
         workspace_locking_adom: "root"
         workspace_locking_timeout: 300
-        pkg_path: ""
+        pkg_path: "/"
         pm_pkg:
           name: "Hub1"
 
