@@ -21,7 +21,6 @@
         nat: "disable"
         status: "enable"
         logtraffic: "utm"
-        profile-protocol-options: ["default"]
         ssl-ssh-profile: ["no-inspection"]
         auto-asic-offload: "enable"
         np-acceleration: "enable"
@@ -39,7 +38,6 @@
         status: "enable"
         logtraffic: "utm"
         comments: " (Reverse of sd-wan-out)"
-        profile-protocol-options: ["default"]
         ssl-ssh-profile: ["no-inspection"]
         auto-asic-offload: "enable"
         np-acceleration: "enable"
@@ -56,7 +54,6 @@
         nat: "disable"
         status: "enable"
         logtraffic: "utm"
-        profile-protocol-options: ["default"]
         ssl-ssh-profile: ["no-inspection"]
         auto-asic-offload: "enable"
         np-acceleration: "enable"
