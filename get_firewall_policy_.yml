@@ -12,5 +12,5 @@
         facts:
           selector: "pkg_firewall_policy"
           params:
-            adom: "ansible"
+            adom: "root"
             pkg: "Hub" 
