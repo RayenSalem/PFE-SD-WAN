@@ -63,12 +63,12 @@
 
   tasks:
     - name: Create firewall policies
-      fortinet.fortimanager.fmgr_firewall_policy:
+      fortinet.fortimanager.fmgr_pkg_firewall_policy:
         bypass_validation: false
         adom: "root"
         pkg: "Hub1"
         state: "present"
-        firewall_policy: "{{ item }}"
+        pkg_firewall_policy: "{{ item }}"
       loop: "{{ firewall_policies }}"
       register: policy_results
 
