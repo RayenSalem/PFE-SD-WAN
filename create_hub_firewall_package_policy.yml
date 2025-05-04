@@ -62,16 +62,6 @@
         np-acceleration: "enable"
 
   tasks:
-    - name: Create policy package 'Hub1'
-      fortinet.fortimanager.fmgr_pm_pkg:
-        adom: "global"
-        state: present
-        workspace_locking_adom: "root"
-        workspace_locking_timeout: 300
-        pkg_path: ""
-        pm_pkg:
-          name: "Hub1"
-
     - name: Create firewall policies
       fortinet.fortimanager.fmgr_pkg_firewall_policy:
         bypass_validation: false
