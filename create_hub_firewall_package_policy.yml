@@ -9,17 +9,6 @@
     ansible_httpapi_port: 443
 
   tasks:
-    # First ensure the package exists
-    - name: Create or ensure Hub package exists
-      fortinet.fortimanager.fmgr_fmgr_package:
-        adom: "root"
-        state: "present"
-        fmgr_package:
-          name: "Hub1"
-          type: "pkg"
-      register: package_result
-      ignore_errors: yes  # Continue if package already exists
-
     # Now create the firewall policies
     - name: Configure firewall policies in Hub package
       fortinet.fortimanager.fmgr_firewall_policy:
