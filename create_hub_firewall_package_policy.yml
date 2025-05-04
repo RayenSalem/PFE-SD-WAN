@@ -12,49 +12,49 @@
       - policyid: 2
         name: "sd-wan-out"
         action: "accept"
-        srcintf: ["port1"]
-        dstintf: ["overlay"]
-        srcaddr: ["all"]
-        dstaddr: ["all"]
-        service: ["ALL"]
-        schedule: ["always"]
+        srcintf: "port1"
+        dstintf: "overlay"
+        srcaddr: "all"
+        dstaddr: "all"
+        service: "ALL"
+        schedule: "always"
         nat: "disable"
         status: "enable"
         logtraffic: "utm"
-        ssl-ssh-profile: ["no-inspection"]
+        ssl-ssh-profile: "no-inspection"
         auto-asic-offload: "enable"
         np-acceleration: "enable"
 
       - policyid: 3
         name: "sd-wan-in"
         action: "accept"
-        srcintf: ["overlay"]
-        dstintf: ["port1"]
-        srcaddr: ["all"]
-        dstaddr: ["all"]
-        service: ["ALL"]
-        schedule: ["always"]
+        srcintf: "overlay"
+        dstintf: "port1"
+        srcaddr: "all"
+        dstaddr: "all"
+        service: "ALL"
+        schedule: "always"
         nat: "disable"
         status: "enable"
         logtraffic: "utm"
         comments: " (Reverse of sd-wan-out)"
-        ssl-ssh-profile: ["no-inspection"]
+        ssl-ssh-profile: "no-inspection"
         auto-asic-offload: "enable"
         np-acceleration: "enable"
 
       - policyid: 4
         name: "vpn2vpn"
         action: "accept"
-        srcintf: ["overlay"]
-        dstintf: ["overlay"]
-        srcaddr: ["all"]
-        dstaddr: ["all"]
-        service: ["ALL"]
-        schedule: ["always"]
+        srcintf: "overlay"
+        dstintf: "overlay"
+        srcaddr: "all"
+        dstaddr: "all"
+        service: "ALL"
+        schedule: "always"
         nat: "disable"
         status: "enable"
         logtraffic: "utm"
-        ssl-ssh-profile: ["no-inspection"]
+        ssl-ssh-profile: "no-inspection"
         auto-asic-offload: "enable"
         np-acceleration: "enable"
 
