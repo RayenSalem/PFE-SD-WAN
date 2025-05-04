@@ -1,0 +1,16 @@
+- name: Gathering fortimanager facts
+  hosts: fortimanagers
+  gather_facts: false
+  connection: httpapi
+  vars:
+    ansible_httpapi_use_ssl: true
+    ansible_httpapi_validate_certs: false
+    ansible_httpapi_port: 443
+  tasks:
+    - name: Retrieve all the IPv4 policies
+      fortinet.fortimanager.fmgr_fact:
+        facts:
+          selector: "pkg_firewall_policy"
+          params:
+            adom: "ansible"
+            pkg: "Hub" 
