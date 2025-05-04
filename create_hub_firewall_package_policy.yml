@@ -71,7 +71,6 @@
         pkg_path: "root"
         pm_pkg:
           name: "Hub1"
-          comments: "Created by Ansible"
 
     - name: Create firewall policies
       fortinet.fortimanager.fmgr_pkg_firewall_policy:
