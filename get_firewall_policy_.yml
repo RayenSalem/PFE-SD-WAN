@@ -14,3 +14,8 @@
           params:
             adom: "root"
             pkg: "Hub" 
+      register: policy_result
+
+    - name: Display the policy results
+      ansible.builtin.debug:
+        var: policy_result
