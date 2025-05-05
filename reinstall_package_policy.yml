@@ -8,8 +8,11 @@
   tasks:
     - name: Re-install a policy package that had been previously installed
       fortinet.fortimanager.fmgr_securityconsole_reinstall_package:
-        adom: "root"
-        pkg: "Spokes"
-        scope:
-          - name: "spoke1"
-            vdom: "root"
+        workspace_locking_adom: "root"
+        workspace_locking_timeout: 300
+        securityconsole_reinstall_package:
+          adom: "root"
+          pkg: "Spokes"
+          scope:
+            - name: "spoke1"
+              vdom: "root"
