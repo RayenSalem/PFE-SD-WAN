@@ -1,4 +1,4 @@
-- name: Example playbook (generated based on argument schema)
+- name: Reinstall policy package on FortiManager
   hosts: fortimanager
   connection: httpapi
   vars:
@@ -6,8 +6,10 @@
     ansible_httpapi_validate_certs: false
     ansible_httpapi_port: 443
   tasks:
-    - name: Re-install a policy package that had been previously installed.
+    - name: Re-install a policy package that had been previously installed
       fortinet.fortimanager.fmgr_securityconsole_reinstall_package:
-        workspace_locking_adom: root
-        workspace_locking_timeout: 300
-        securityconsole_reinstall_package:
+        adom: "root"
+        pkg: "Spokes"
+        scope:
+          - name: "spoke1"
+            vdom: "root"
