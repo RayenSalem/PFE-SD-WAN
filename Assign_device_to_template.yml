@@ -6,24 +6,10 @@
     ansible_httpapi_validate_certs: false
     ansible_httpapi_port: 443
   tasks:
-    - name: Assign scope members to template group
-      uri:
-        url: "https://192.168.10.6/pm/tmplgrp/adom/root/SD-WAN_Template_BRANCH/scope_member"
-        method: POST
-        body_format: json
-        body: {
-          "data": [
-            {"name": "spoke1", "vdom": "root"},
-            {"name": "spoke2", "vdom": "root"}
-          ]
-        }
-        headers:
-          Content-Type: "application/json"
-        status_code: 200
-        validate_certs: no
-        return_content: yes
-      register: result
-
-    - name: Debug response
-      debug:
-        msg: "{{ result.content }}"
+    - name: Cli template group
+      fortinet.fortimanager.fmgr_templategroup:
+        adom: root
+        state: present
+        templategroup:
+          name: "SD-WAN Template_BRANCH" 
+          member: ["spoke1", "spoke2"] 
