@@ -1,5 +1,5 @@
 - name: Example playbook (generated based on argument schema)
-  hosts: fortimanagers
+  hosts: fortimanager
   connection: httpapi
   vars:
     ansible_httpapi_use_ssl: true
