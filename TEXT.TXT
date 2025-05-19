@@ -1,1 +1,0 @@
-vol.py -f "C:\\Users\\AdminELS\\Desktop\\memdump.mem" --profile=Win10x64_18362 dumpfiles  -r "AssemblyLoader.dll" -D dump
