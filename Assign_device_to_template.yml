@@ -6,10 +6,9 @@
     ansible_httpapi_validate_certs: false
     ansible_httpapi_port: 443
   tasks:
-    - name: Cli template group
-      fortinet.fortimanager.fmgr_templategroup:
-        adom: root
-        state: present
-        templategroup:
-          name: "SD-WAN Template_BRANCH" 
-          member: ["spoke1", "spoke2"] 
+    - name: SET PROVISIONING TEMPLATE DEVICE TARGETS IN FORTIMANAGER
+      community.fortios.fmgr_device_provision_template:
+        provisioning_template: "SD-WAN Template_BRANCH"
+        mode: "set"
+        adom: "root"
+        provision_targets: "spoke1, spoke2"
