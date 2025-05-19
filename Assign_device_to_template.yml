@@ -1,0 +1,15 @@
+- name: Example playbook (generated based on argument schema)
+  hosts: fortimanagers
+  connection: httpapi
+  vars:
+    ansible_httpapi_use_ssl: true
+    ansible_httpapi_validate_certs: false
+    ansible_httpapi_port: 443
+  tasks:
+    - name: Cli template group
+      fortinet.fortimanager.fmgr_templategroup:
+        adom: root
+        state: present
+        templategroup:
+          name: "SD-WAN Template_BRANCH" 
+          member: ["spoke1", "spoke2"] 
