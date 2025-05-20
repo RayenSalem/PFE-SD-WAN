@@ -13,9 +13,8 @@
   tasks:
     - name: Set scope member for SD-WAN template
       community.fortios.fmgr_generic:
-        host: "fortimanager.example.com"
         username: "admin"
-        password: "password"
+        password: "admin"
         adom: "root"
         method: "set"
         params:
