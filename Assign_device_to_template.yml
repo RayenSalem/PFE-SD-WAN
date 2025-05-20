@@ -1,11 +1,16 @@
 ---
 - name: Set SD-WAN Template Scope Member in FortiManager
-  hosts: fortimanager
+  hosts: localhost
+  connection: local  # Run on AAP controller, not FortiManager
   gather_facts: no
+  vars:
+    fortimanager_host: "192.168.10.6"  # Use the IP directly
+    fortimanager_username: "admin"
+    fortimanager_password: "admin"
   tasks:
     - name: Authenticate with FortiManager to get session ID
       ansible.builtin.uri:
-        url: "https://fortimanager/jsonrpc"
+        url: "https://{{ fortimanager_host }}/jsonrpc"
         method: POST
         body_format: json
         body: >
@@ -16,13 +21,13 @@
               {
                 "url": "/sys/login/user",
                 "data": {
-                  "user": "admin",
-                  "passwd": "admin"
+                  "user": "{{ fortimanager_username }}",
+                  "passwd": "{{ fortimanager_password }}"
                 }
               }
             ]
           }
-        validate_certs: no  # Disable if using self-signed certs
+        validate_certs: no  # Bypass SSL certificate validation
         status_code: 200
         return_content: yes
       register: login_response
@@ -33,7 +38,7 @@
 
     - name: Set scope member for SD-WAN template
       ansible.builtin.uri:
-        url: "https://fortimanager/jsonrpc"
+        url: "https://{{ fortimanager_host }}/jsonrpc"
         method: POST
         body_format: json
         body: >
