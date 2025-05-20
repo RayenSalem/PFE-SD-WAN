@@ -38,8 +38,8 @@
 
     - name: Extract session ID
       ansible.builtin.set_fact:
-        session_id: "{{ login_response.json.result[0].session }}"
-      when: login_response.json.result is defined and login_response.json.result[0].session is defined
+        session_id: "{{ login_response.json.session }}"
+      when: login_response.json.session is defined
 
     - name: Set scope member for SD-WAN template
       ansible.builtin.uri:
