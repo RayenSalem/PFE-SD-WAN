@@ -1,10 +1,10 @@
 ---
 - name: Set SD-WAN Template Scope Member in FortiManager
   hosts: localhost
-  connection: local  # Run on AAP controller, not FortiManager
+  connection: local
   gather_facts: no
   vars:
-    fortimanager_host: "192.168.10.6"  # Use the IP directly
+    fortimanager_host: "192.168.10.6"
     fortimanager_username: "admin"
     fortimanager_password: "admin"
   tasks:
@@ -27,14 +27,19 @@
               }
             ]
           }
-        validate_certs: no  # Bypass SSL certificate validation
+        validate_certs: no
         status_code: 200
         return_content: yes
       register: login_response
 
+    - name: Debug login response
+      ansible.builtin.debug:
+        var: login_response
+
     - name: Extract session ID
       ansible.builtin.set_fact:
         session_id: "{{ login_response.json.result[0].session }}"
+      when: login_response.json.result is defined and login_response.json.result[0].session is defined
 
     - name: Set scope member for SD-WAN template
       ansible.builtin.uri:
@@ -61,6 +66,7 @@
         status_code: 200
         return_content: yes
       register: result
+      when: session_id is defined
 
     - name: Display response
       ansible.builtin.debug:
