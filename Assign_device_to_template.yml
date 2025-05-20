@@ -1,6 +1,6 @@
 - hosts: fortimanager
   collections:
-    - community.fortios
+    - fortinet.fortios
   connection: httpapi
   vars:
     ansible_httpapi_use_ssl: true
@@ -11,15 +11,12 @@
     ansible_host: "192.168.10.6"
     adom: "root"
   tasks:
-    - name: SET PROVISIONING TEMPLATE DEVICE TARGETS IN FORTIMANAGER
-      community.fortios.fmgr_device_provision_template:
-        provisioning_template: "SD-WAN Template_BRANCH"
-        mode: "set"
-        adom: "{{ adom }}"
-        provision_targets: "spoke1, spoke2"
-      register: result
-      ignore_errors: true
-
-    - name: Debug output
-      debug:
-        msg: "{{ result }}"
+    - name: Set device provisioning template targets
+      fortinet.fortios.fmgr_device_provision_template:
+        adom: "root"
+        state: "present"
+        provision_template: "SD-WAN Template_BRANCH"
+        provision_targets: ["spoke1", "spoke2"]
+        fortimanager_host: "192.168.10.6"
+        fortimanager_username: "admin"
+        fortimanager_password: "admin"
