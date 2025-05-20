@@ -32,14 +32,10 @@
         return_content: yes
       register: login_response
 
-    - name: Debug login response
-      ansible.builtin.debug:
-        var: login_response
-
     - name: Extract session ID
       ansible.builtin.set_fact:
         session_id: "{{ login_response.json.session }}"
-
+      when: login_response.json.session is defined
 
     - name: Set scope member for SD-WAN template
       ansible.builtin.uri:
@@ -52,7 +48,7 @@
             "method": "set",
             "params": [
               {
-                "url": "pm/tmplgrp/adom/root/SD-WAN_Template_HUB1/scope",
+                "url": "pm/tmplgrp/adom/root/SD-WAN_Template_HUB1/scope_member",
                 "data": [
                   {"name": "HUBS", "is_group": 1}
                 ]
@@ -66,7 +62,7 @@
         status_code: 200
         return_content: yes
       register: result
-
+      when: session_id is defined
 
     - name: Display response
       ansible.builtin.debug:
