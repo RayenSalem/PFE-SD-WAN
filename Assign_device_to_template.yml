@@ -14,6 +14,5 @@
     - name: Set device provisioning template targets
       community.fortios.fmgr_device_provision_template:
         adom: "{{ adom }}"
-        state: "present"
-        provision_template: "SD-WAN Template_BRANCH"
+        provisioning_template: "SD-WAN Template_BRANCH"
         provision_targets: ["spoke1", "spoke2"]
