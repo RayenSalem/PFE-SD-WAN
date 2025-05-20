@@ -12,8 +12,13 @@
     adom: "root"
   tasks:
     - name: SET PROVISIONING TEMPLATE DEVICE TARGETS IN FORTIMANAGER
-      community.fortios.fmgr_device_provision_template:
-        provisioning_template: "SD-WAN Template_BRANCH"
-        mode: "set"
-        adom: "root"
-        provision_targets: "spoke1, spoke2"
+      community.fortios.fmgr_generic:
+        method: "set"
+        url: "/pm/config/adom/root/obj/fmgr/device/provision/template/SD-WAN Template_BRANCH"
+        data:
+          provision_targets: ["spoke1", "spoke2"]
+      register: result
+
+    - name: Debug output
+      debug:
+        msg: "{{ result }}"
