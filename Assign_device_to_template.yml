@@ -36,34 +36,28 @@
       ansible.builtin.set_fact:
         session_id: "{{ login_response.json.session }}"
       when: login_response.json.session is defined
-
-    - name: Set scope member for SD-WAN template
+    - name: Get SD-WAN templates
       ansible.builtin.uri:
         url: "https://{{ fortimanager_host }}/jsonrpc"
         method: POST
         body_format: json
         body: >
           {
-            "id": "291df3fd-954d-40f3-92fe-1cefd3dcce29",
-            "method": "set",
+            "id": 2,
+            "method": "get",
             "params": [
               {
-                "url": "pm/tmplgrp/adom/root/SD-WAN_Template_HUB1/scope_member",
-                "data": [
-                  {"name": "HUBS", "is_group": 1}
-                ]
+                "url": "pm/tmplgrp/adom/root"
               }
             ],
             "session": "{{ session_id }}"
           }
-        headers:
-          strict-origin-when-cross-origin: ""
         validate_certs: no
         status_code: 200
         return_content: yes
-      register: result
+      register: template_list
       when: session_id is defined
 
-    - name: Display response
+    - name: Debug template list
       ansible.builtin.debug:
-        var: result.json
+        var: template_list.json
