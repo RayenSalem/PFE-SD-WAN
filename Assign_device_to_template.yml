@@ -11,11 +11,16 @@
     ansible_host: "192.168.10.6"
     adom: "root"
   tasks:
-    - name: Set device provisioning template targets
-      fortinet.fortios.fmgr_generic:
+    - name: Set scope member for SD-WAN template
+      community.fortios.fmgr_generic:
+        host: "fortimanager.example.com"
+        username: "admin"
+        password: "password"
+        adom: "root"
         method: "set"
         params:
-          - url: "/pm/config/adom/{{ adom }}/template/device"
+          - url: "pm/tmplgrp/adom/root/SD-WAN TEMPLATE_HUB1/scope member"
             data:
-              name: "SD-WAN Template_BRANCH"
-              provision_targets: ["spoke1", "spoke2"]
+              - name: "HUBS"
+                is_group: 1
+      register: result
