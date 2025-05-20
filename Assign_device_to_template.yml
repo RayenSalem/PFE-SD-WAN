@@ -1,25 +1,62 @@
-- hosts: fortimanager
-  collections:
-    - fortinet.fortios
-  connection: httpapi
-  vars:
-    ansible_httpapi_use_ssl: true
-    ansible_httpapi_validate_certs: false
-    ansible_network_os: fortinet.fortimanager.fortimanager
-    ansible_user: "admin"
-    ansible_password: "admin"
-    ansible_host: "192.168.10.6"
-    adom: "root"
+---
+- name: Set SD-WAN Template Scope Member in FortiManager
+  hosts: fortimanager
+  gather_facts: no
   tasks:
+    - name: Authenticate with FortiManager to get session ID
+      ansible.builtin.uri:
+        url: "https://fortimanager/jsonrpc"
+        method: POST
+        body_format: json
+        body: >
+          {
+            "id": 1,
+            "method": "exec",
+            "params": [
+              {
+                "url": "/sys/login/user",
+                "data": {
+                  "user": "admin",
+                  "passwd": "admin"
+                }
+              }
+            ]
+          }
+        validate_certs: no  # Disable if using self-signed certs
+        status_code: 200
+        return_content: yes
+      register: login_response
+
+    - name: Extract session ID
+      ansible.builtin.set_fact:
+        session_id: "{{ login_response.json.result[0].session }}"
+
     - name: Set scope member for SD-WAN template
-      community.fortios.fmgr_generic:
-        username: "admin"
-        password: "admin"
-        adom: "root"
-        method: "set"
-        params:
-          - url: "pm/tmplgrp/adom/root/SD-WAN TEMPLATE_HUB1/scope member"
-            data:
-              - name: "HUBS"
-                is_group: 1
+      ansible.builtin.uri:
+        url: "https://fortimanager/jsonrpc"
+        method: POST
+        body_format: json
+        body: >
+          {
+            "id": "291df3fd-954d-40f3-92fe-1cefd3dcce29",
+            "method": "set",
+            "params": [
+              {
+                "url": "pm/tmplgrp/adom/root/SD-WAN TEMPLATE_HUB1/scope member",
+                "data": [
+                  {"name": "HUBS", "is_group": 1}
+                ]
+              }
+            ],
+            "session": "{{ session_id }}"
+          }
+        headers:
+          strict-origin-when-cross-origin: ""
+        validate_certs: no
+        status_code: 200
+        return_content: yes
       register: result
+
+    - name: Display response
+      ansible.builtin.debug:
+        var: result.json
