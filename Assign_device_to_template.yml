@@ -52,7 +52,7 @@
             "method": "set",
             "params": [
               {
-                "url": "pm/tmplgrp/adom/root/SD-WAN_Template_HUB1/scope member",
+                "url": "pm/tmplgrp/adom/root/SD-WAN_Template_HUB1/scope%20member",
                 "data": [
                   {"name": "HUBS", "is_group": 1}
                 ]
