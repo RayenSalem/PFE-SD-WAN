@@ -1,28 +1,60 @@
 ---
-- name: Install device settings only to a FortiGate
+- name: Trigger FortiManager Install via REST API
   hosts: fortimanager
   gather_facts: no
-  connection: httpapi
-  collections:
-    - fortinet.fortimanager
-
   vars:
+    fmgr_host: "192.168.10.6"           # Replace with your FMG IP
+    fmgr_user: "admin"                # Replace with your FMG username
+    fmgr_password: "admin"        # Replace with your FMG password
     adom: "root"
-    device_name: "Hub"  # change to your FortiGate's name in FortiManager
+    device_name: "Hub"                  # Replace with your device name
+    vdom_name: "root"
 
   tasks:
-    - name: Trigger device settings install (device database only)
-      fmgr_dvm_cmd_install:
-        adom: "{{ adom }}"
-        dvm_cmd_install:
-          action: "install"
-          flags:
-            - "install_config"
-          device:
-            - name: "{{ device_name }}"
-              vdom: "root"   # or your VDOM name
-      register: install_result
+    - name: Log in to FortiManager and get session ID
+      uri:
+        url: "https://{{ fmgr_host }}/jsonrpc"
+        method: POST
+        body_format: json
+        validate_certs: no
+        body:
+          method: "exec"
+          params:
+            - url: "sys/login/user"
+              data:
+                user: "{{ fmgr_user }}"
+                passwd: "{{ fmgr_password }}"
+        return_content: yes
+      register: login_response
 
-    - name: Show result
+    - name: Set session ID fact
+      set_fact:
+        session_id: "{{ login_response.json.session }}"
+
+    - name: Trigger device settings install (install_config only)
+      uri:
+        url: "https://{{ fmgr_host }}/jsonrpc"
+        method: POST
+        body_format: json
+        validate_certs: no
+        headers:
+          Content-Type: "application/json"
+        body:
+          method: "exec"
+          session: "{{ session_id }}"
+          params:
+            - url: "dvm/cmd/install/device"
+              data:
+                adom: "{{ adom }}"
+                flags:
+                  - "install_config"
+                device:
+                  - name: "{{ device_name }}"
+                    vdom: "{{ vdom_name }}"
+        return_content: yes
+      register: install_response
+
+    - name: Show install response
       debug:
-        var: install_result
+        var: install_response.json
+
