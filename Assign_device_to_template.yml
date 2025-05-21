@@ -10,6 +10,15 @@
     device_name: "Hub"
     device_vdom: "root"
   tasks:
+    - name: Check device status
+      fortinet.fortimanager.fmgr_fact:
+        facts:
+          selector: "devmgmt_device"
+          params:
+            device: "{{ device_name }}"
+      register: device_status
+      failed_when: device_status.meta.response_data.state != "connected"
+
     - name: Invoke the task
       fortinet.fortimanager.fmgr_securityconsole_install_device:
         securityconsole_install_device:
@@ -18,6 +27,7 @@
             - name: "{{ device_name }}"
               vdom: "{{ device_vdom }}"
       register: installing_task
+
     - name: Inspect the Task Status
       fortinet.fortimanager.fmgr_fact:
         facts:
@@ -27,5 +37,10 @@
       register: taskinfo
       until: taskinfo.meta.response_data.percent == 100
       retries: 30
-      delay: 3
+      delay: 5
       failed_when: taskinfo.meta.response_data.state == 'error'
+
+    - name: Display error details on failure
+      ansible.builtin.debug:
+        msg: "Task failed with details: {{ taskinfo.meta.response_data.history }}"
+      when: taskinfo.meta.response_data.state == 'error'
