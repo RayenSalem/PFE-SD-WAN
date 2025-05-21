@@ -11,24 +11,24 @@
     device_vdom: "root"
 
   tasks:
-    - name: Invoke the task
-      fortinet.fortimanager.fmgr_securityconsole_install_device:
-        securityconsole_install_device:
-          adom: "{{ device_adom }}"
-          scope:
-            - name: "{{ device_name }}"
-              vdom: "{{ device_vdom }}"
-      register: installing_task
-    - name: Inspect the Task Status
-      fortinet.fortimanager.fmgr_fact:
-        facts:
-          selector: "task_task"
-          params:
-            task: "{{ installing_task.meta.response_data.task }}"
-      register: taskinfo
-      until: taskinfo.meta.response_data.percent == 100
-      retries: 30
-      delay: 3
+    # - name: Invoke the task
+    #   fortinet.fortimanager.fmgr_securityconsole_install_device:
+    #     securityconsole_install_device:
+    #       adom: "{{ device_adom }}"
+    #       scope:
+    #         - name: "{{ device_name }}"
+    #           vdom: "{{ device_vdom }}"
+    #   register: installing_task
+    # - name: Inspect the Task Status
+    #   fortinet.fortimanager.fmgr_fact:
+    #     facts:
+    #       selector: "task_task"
+    #       params:
+    #         task: "{{ installing_task.meta.response_data.task }}"
+    #   register: taskinfo
+    #   until: taskinfo.meta.response_data.percent == 100
+    #   retries: 30
+    #   delay: 3
 
     - name: Probe a remote device and retrieve its device information and system status.
       fortinet.fortimanager.fmgr_dvm_cmd_discover_device:
