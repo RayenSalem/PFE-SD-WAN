@@ -12,23 +12,13 @@
     device_vdom: "root"
 
   tasks:
-    - name: Gather device information
-      fortinet.fortimanager.fmgr_fact:
-        facts:
-          selector: "device"
-          params:
-            adom: "{{ device_adom }}"
-      register: device_info
-
     - name: Start installation
       fortinet.fortimanager.fmgr_securityconsole_install_device:
         enable_log: true
         securityconsole_install_device:
           adom: "{{ device_adom }}"
-          dev_rev_comments: "Triggered by Ansible"
+          dev_rev_comments: "Install from Ansible"
           flags:
-            - none
-            - preview
             - auto_lock_ws
           scope:
             - name: "{{ device_name }}"
@@ -40,7 +30,7 @@
         facts:
           selector: "task_task"
           params:
-            task: "{{ installing_task.meta.response_data.id }}"
+            task: "{{ installing_task.meta.response_data.task | default(installing_task.meta.response_data.id) }}"
       register: taskinfo
       until: taskinfo.meta.response_data.percent == 100
       retries: 30
