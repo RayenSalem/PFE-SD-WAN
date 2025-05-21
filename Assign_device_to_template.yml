@@ -12,7 +12,7 @@
 
   tasks:
     - name: Trigger device settings install (device database only)
-      fortinet.fortimanager.fmgr_dvm_cmd_install:
+      fmgr_dvm_cmd_install:
         adom: "{{ adom }}"
         dvm_cmd_install:
           action: "install"
