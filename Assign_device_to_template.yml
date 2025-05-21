@@ -13,7 +13,7 @@
     - name: Check device status
       fortinet.fortimanager.fmgr_fact:
         facts:
-          selector: "devmgmt_device"
+          selector: "dvmdb_device"
           params:
             device: "{{ device_name }}"
       register: device_status
