@@ -1,19 +1,35 @@
 - name: Commit config to device
-  hosts: fortimanager
+  hosts: fortimanagers
   gather_facts: false
   connection: httpapi
+
   vars:
     ansible_httpapi_use_ssl: true
     ansible_httpapi_validate_certs: false
     ansible_httpapi_port: 443
     device_adom: "root"
-    device_name: "Hub"
+    device_name: "CustomHostName"
     device_vdom: "root"
+
   tasks:
+    - name: Gather device information
+      fortinet.fortimanager.fmgr_fact:
+        facts:
+          selector: "device"
+          params:
+            adom: "{{ device_adom }}"
+      register: device_info
+
     - name: Start installation
       fortinet.fortimanager.fmgr_securityconsole_install_device:
+        enable_log: true
         securityconsole_install_device:
           adom: "{{ device_adom }}"
+          dev_rev_comments: "Triggered by Ansible"
+          flags:
+            - none
+            - preview
+            - auto_lock_ws
           scope:
             - name: "{{ device_name }}"
               vdom: "{{ device_vdom }}"
@@ -24,7 +40,7 @@
         facts:
           selector: "task_task"
           params:
-            task: "{{ installing_task.meta.response_data.task }}"
+            task: "{{ installing_task.meta.response_data.id }}"
       register: taskinfo
       until: taskinfo.meta.response_data.percent == 100
       retries: 30
