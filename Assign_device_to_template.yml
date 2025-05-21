@@ -18,16 +18,6 @@
             adom: "{{ device_adom }}"
             device: "{{ device_name }}"
       register: device_status
-      
-
-    - name: Retrieve device configuration
-      fortinet.fortimanager.fmgr_device_config:
-        device_config:
-          adom: "{{ device_adom }}"
-          device: "{{ device_name }}"
-          option: "retrieve"
-      register: config_retrieve
-      when: device_status is success
 
     - name: Invoke the task
       fortinet.fortimanager.fmgr_securityconsole_install_device:
@@ -48,7 +38,7 @@
       until: taskinfo.meta.response_data.percent == 100
       retries: 30
       delay: 5
-      
+
 
     - name: Display error details on failure
       ansible.builtin.debug:
