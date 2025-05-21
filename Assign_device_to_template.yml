@@ -30,11 +30,15 @@
     #   retries: 30
     #   delay: 3
 
-    - name: Probe a remote device and retrieve its device information and system status.
-      fortinet.fortimanager.fmgr_dvm_cmd_discover_device:
-        bypass_validation: false
-        dvm_cmd_discover_device:
-          device:
-            adm_pass: admin # device password
-            adm_usr: admin # device user name
-            ip: 172.21.0.254 # device ip
+    - name: Reload and retrieve the device list from FortiManager
+      fortinet.fortimanager.fmgr_dvm_cmd_reload_devlist:
+        workspace_locking_adom: root
+        workspace_locking_timeout: 300
+        dvm_cmd_reload_devlist:
+          adom: root
+          flags:
+            - create_task
+          from: fgfm
+          reload_dev_member_list:
+            - name: "Hub"
+              vdom: "root"
