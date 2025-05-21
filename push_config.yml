@@ -6,6 +6,8 @@
     ansible_httpapi_use_ssl: true
     ansible_httpapi_validate_certs: false
     ansible_httpapi_port: 443
+    ansible_command_timeout: 60  # Increased timeout
+    ansible_warnings: false  # Suppress collection warnings
     device_adom: "root"
     device_vdom: "root"
     devices:
@@ -42,3 +44,4 @@
             - create_task
           from: fgfm
           reload_dev_member_list: "{{ devices }}"
+      timeout: 60  # Task-specific timeout
