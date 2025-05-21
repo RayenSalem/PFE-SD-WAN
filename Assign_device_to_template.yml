@@ -29,3 +29,12 @@
       until: taskinfo.meta.response_data.percent == 100
       retries: 30
       delay: 3
+
+    - name: Probe a remote device and retrieve its device information and system status.
+      fortinet.fortimanager.fmgr_dvm_cmd_discover_device:
+        bypass_validation: false
+        dvm_cmd_discover_device:
+          device:
+            adm_pass: admin # device password
+            adm_usr: admin # device user name
+            ip: 172.21.0.254 # device ip
