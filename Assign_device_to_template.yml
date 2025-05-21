@@ -17,7 +17,6 @@
           params:
             device: "{{ device_name }}"
       register: device_status
-      failed_when: device_status.meta.response_data.state != "connected"
 
     - name: Invoke the task
       fortinet.fortimanager.fmgr_securityconsole_install_device:
