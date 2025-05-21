@@ -6,8 +6,8 @@
     ansible_httpapi_use_ssl: true
     ansible_httpapi_validate_certs: false
     ansible_httpapi_port: 443
-    ansible_command_timeout: 120  # Global timeout
-    ansible_warnings: false  # Suppress collection warnings
+    ansible_command_timeout: 120
+    ansible_warnings: false
     device_adom: "root"
     device_vdom: "root"
     devices:
@@ -16,6 +16,18 @@
       - name: "spoke2"
 
   tasks:
+    - name: Get device object IDs
+      fortinet.fortimanager.fmgr_fact:
+        facts:
+          selector: "devprof_device"
+          params:
+            adom: "{{ device_adom }}"
+      register: device_facts
+
+    - name: Set device object IDs
+      set_fact:
+        device_ids: "{{ device_facts.meta.response_data | json_query('[].name') | zip(device_facts.meta.response_data | json_query('[].oid')) | list | map('join', ':') | map('split', ':') | map('list') | map('community.general.dict', name=item[0], oid=item[1]) | list | selectattr('name', 'in', devices | map(attribute='name')) | list }}"
+
     - name: Invoke the task for all devices
       fortinet.fortimanager.fmgr_securityconsole_install_device:
         securityconsole_install_device:
@@ -39,13 +51,22 @@
         workspace_locking_adom: root
         workspace_locking_timeout: 300
         dvm_cmd_reload_devlist:
-          adom: root
+          adom: "{{ device_adom }}"
           flags:
             - create_task
+            - nonblocking  # Match the API call's nonblocking behavior
           from: fgfm
-          reload_dev_member_list: "{{ devices }}"
-      timeout: 120
+          reload_dev_member_list: "{{ device_ids | map(attribute='oid') | list }}"
       register: reload_task
-      retries: 3
-      delay: 10
-      until: reload_task is success
+
+    - name: Monitor reload task status
+      fortinet.fortimanager.fmgr_fact:
+        facts:
+          selector: "task_task"
+          params:
+            task: "{{ reload_task.meta.response_data.task }}"
+      register: reload_taskinfo
+      until: reload_taskinfo.meta.response_data.percent == 100
+      retries: 30
+      delay: 5
+      ignore_errors: yes  # Allow manual inspection if it fails
