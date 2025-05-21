@@ -15,6 +15,7 @@
         facts:
           selector: "dvmdb_device"
           params:
+            adom: "{{ device_adom }}"
             device: "{{ device_name }}"
       register: device_status
 
