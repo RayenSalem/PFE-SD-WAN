@@ -1,5 +1,5 @@
-- name: Commit config to real device
-  hosts: fortimanager
+- name: Commit config to device
+  hosts: fortimanagers
   gather_facts: false
   connection: httpapi
   vars:
@@ -9,9 +9,8 @@
     device_adom: "root"
     device_name: "Hub"
     device_vdom: "root"
-
   tasks:
-    - name: Invoke the task
+    - name: Start installation
       fortinet.fortimanager.fmgr_securityconsole_install_device:
         securityconsole_install_device:
           adom: "{{ device_adom }}"
@@ -19,7 +18,8 @@
             - name: "{{ device_name }}"
               vdom: "{{ device_vdom }}"
       register: installing_task
-    - name: Inspect the Task Status
+
+    - name: Check installation status
       fortinet.fortimanager.fmgr_fact:
         facts:
           selector: "task_task"
@@ -29,3 +29,4 @@
       until: taskinfo.meta.response_data.percent == 100
       retries: 30
       delay: 3
+      failed_when: taskinfo.meta.response_data.state == 'error'
