@@ -1,5 +1,5 @@
 - name: Commit config to device
-  hosts: fortimanagers
+  hosts: fortimanager
   gather_facts: false
   connection: httpapi
   vars:
