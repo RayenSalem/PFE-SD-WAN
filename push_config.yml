@@ -26,7 +26,13 @@
 
     - name: Set device object IDs
       set_fact:
-        device_ids: "{{ device_facts.meta.response_data | selectattr('name', 'in', devices | map(attribute='name')) | map(attribute='oid') | list }}"
+        device_ids: >-
+          {{
+            device_facts.meta.response_data
+            | selectattr('name', 'in', devices | map(attribute='name') | list)
+            | map(attribute='oid')
+            | list
+          }}
 
     - name: Invoke the task for all devices
       fortinet.fortimanager.fmgr_securityconsole_install_device:
@@ -48,15 +54,15 @@
 
     - name: Reload and retrieve the device list from FortiManager
       fortinet.fortimanager.fmgr_dvm_cmd_reload_devlist:
-        workspace_locking_adom: root
+        workspace_locking_adom: "{{ device_adom }}"
         workspace_locking_timeout: 300
         dvm_cmd_reload_devlist:
           adom: "{{ device_adom }}"
           flags:
             - create_task
-            - nonblocking  
+            - nonblocking
           from: fgfm
-          reload_dev_member_list: "{{ device_ids }}"
+          reload_dev_member_list: "{{ device_ids | flatten | list }}"
       register: reload_task
 
     - name: Monitor reload task status
@@ -69,4 +75,4 @@
       until: reload_taskinfo.meta.response_data.percent == 100
       retries: 30
       delay: 5
-      ignore_errors: yes  # Allow manual inspection if it fails
+      ignore_errors: yes
