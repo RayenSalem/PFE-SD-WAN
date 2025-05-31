@@ -12,8 +12,11 @@
     device_vdom: "root"
     devices:
       - name: "Hub"
+        vdom: "root"
       - name: "spoke1"
+        vdom: "root"
       - name: "spoke2"
+        vdom: "root"
 
   tasks:
     - name: Get device object IDs
@@ -24,18 +27,37 @@
             adom: "{{ device_adom }}"
       register: device_facts
 
-    - name: Set device object IDs
-      set_fact:
-        device_ids: "{{ device_facts.meta.response_data | selectattr('name', 'in', devices | map(attribute='name')) | list }}"
+    - name: Debug to verify device facts (optional)
+      debug:
+        var: device_facts.meta.response_data
 
-    - name: Invoke the task for all devices
+    - name: Filter devices that exist in FortiManager
+      set_fact:
+        valid_devices: >-
+          {{
+            device_facts.meta.response_data
+            | selectattr('name', 'in', devices | map(attribute='name') | list)
+            | map(attribute='name')
+            | list
+          }}
+
+    - name: Filter scope list with name and vdom
+      set_fact:
+        scope_devices: >-
+          {{
+            devices
+            | selectattr('name', 'in', valid_devices)
+            | list
+          }}
+
+    - name: Commit configuration to devices
       fortinet.fortimanager.fmgr_securityconsole_install_device:
         securityconsole_install_device:
           adom: "{{ device_adom }}"
-          scope: "{{ devices }}"
+          scope: "{{ scope_devices }}"
       register: installing_task
 
-    - name: Inspect the Task Status
+    - name: Wait for task to complete
       fortinet.fortimanager.fmgr_fact:
         facts:
           selector: "task_task"
@@ -45,3 +67,7 @@
       until: taskinfo.meta.response_data.percent == 100
       retries: 30
       delay: 3
+
+    - name: Show task result
+      debug:
+        var: taskinfo.meta.response_data
