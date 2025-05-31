@@ -19,14 +19,14 @@
     - name: Get device object IDs
       fortinet.fortimanager.fmgr_fact:
         facts:
-          selector: "devprof_device"
+          selector: "dvmdb_device"
           params:
             adom: "{{ device_adom }}"
       register: device_facts
 
     - name: Set device object IDs
       set_fact:
-        device_ids: "{{ device_facts.meta.response_data | json_query('[].name') | zip(device_facts.meta.response_data | json_query('[].oid')) | list | map('join', ':') | map('split', ':') | map('list') | map('community.general.dict', name=item[0], oid=item[1]) | list | selectattr('name', 'in', devices | map(attribute='name')) | list }}"
+        device_ids: "{{ device_facts.meta.response_data | selectattr('name', 'in', devices | map(attribute='name')) | list }}"
 
     - name: Invoke the task for all devices
       fortinet.fortimanager.fmgr_securityconsole_install_device:
