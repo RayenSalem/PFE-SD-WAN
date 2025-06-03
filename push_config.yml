@@ -33,8 +33,8 @@
 
     - name: Set device object IDs
       set_fact:
-        device_ids: "{{ device_facts.response_data | selectattr('name', 'in', devices | map(attribute='name') | list) | map(attribute='oid') | list }}"
-      when: device_facts.rc == 0
+        device_ids: "{{ device_facts.meta.response_data | selectattr('name', 'in', devices | map(attribute='name') | list) | map(attribute='oid') | list }}"
+      when: device_facts.rc == 0 and device_facts.meta.response_data is defined
 
     - name: Debug device IDs
       debug:
@@ -48,6 +48,7 @@
           scope: "{{ devices }}"
       register: installing_task
       failed_when: installing_task.rc != 0
+      when: device_ids is defined and device_ids | length > 0
 
     - name: Inspect the Task Status
       fortinet.fortimanager.fmgr_fact:
@@ -57,9 +58,10 @@
             task: "{{ installing_task.response_data.task }}"
       register: taskinfo
       until: taskinfo.response_data.percent == 100
-      retries: 60  # Increased retries for stability
-      delay: 5     # Increased delay to reduce API load
+      retries: 60
+      delay: 5
       failed_when: taskinfo.rc != 0
+      when: installing_task.rc == 0
 
     - name: Reload and retrieve the device list from FortiManager
       fortinet.fortimanager.fmgr_dvm_cmd_reload_devlist:
@@ -84,8 +86,8 @@
             task: "{{ reload_task.response_data.task }}"
       register: reload_taskinfo
       until: reload_taskinfo.response_data.percent == 100
-      retries: 60  # Increased retries for stability
-      delay: 5     # Increased delay to reduce API load
+      retries: 60
+      delay: 5
       failed_when: reload_taskinfo.rc != 0
       ignore_errors: yes
       when: reload_task.rc == 0
