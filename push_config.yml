@@ -62,11 +62,16 @@
           params:
             task: "{{ installing_task.meta.response_data.task }}"
       register: taskinfo
-      until: taskinfo.response_data.percent == 100
+      until: taskinfo.meta.response_data.percent == 100
       retries: 60
       delay: 5
       failed_when: taskinfo.rc != 0
       when: installing_task.rc == 0 and installing_task.meta.response_data.task is defined
+
+    - name: Debug task status
+      debug:
+        var: taskinfo
+      when: taskinfo.rc == 0
 
     - name: Reload and retrieve the device list from FortiManager
       fortinet.fortimanager.fmgr_dvm_cmd_reload_devlist:
@@ -90,7 +95,7 @@
           params:
             task: "{{ reload_task.response_data.task }}"
       register: reload_taskinfo
-      until: reload_taskinfo.response_data.percent == 100
+      until: reload_taskinfo.meta.response_data.percent == 100
       retries: 60
       delay: 5
       failed_when: reload_taskinfo.rc != 0
