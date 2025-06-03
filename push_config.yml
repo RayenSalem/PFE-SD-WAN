@@ -47,13 +47,7 @@
           adom: "{{ device_adom }}"
           scope: "{{ devices }}"
       register: installing_task
-      failed_when: installing_task.rc != 0
-      when: device_ids is defined and device_ids | length > 0
 
-    - name: Debug installing task
-      debug:
-        var: installing_task
-      when: installing_task.rc == 0
 
 
     - name: Reload and retrieve the device list from FortiManager
@@ -68,6 +62,5 @@
           from: fgfm
           reload_dev_member_list: "{{ device_ids | default([]) }}"
       register: reload_task
-      failed_when: reload_task.rc != 0
-      when: device_ids is defined and device_ids | length > 0
+
 
