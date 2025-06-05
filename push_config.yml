@@ -41,16 +41,6 @@
           scope: "{{ devices }}"
       register: installing_task
 
-    - name: Inspect the Task Status
-      fortinet.fortimanager.fmgr_fact:
-        facts:
-          selector: "task_task"
-          params:
-            task: "{{ installing_task.meta.response_data.task }}"
-      register: taskinfo
-      until: taskinfo.meta.response_data.percent == 100
-      retries: 30
-      delay: 3
 
     - name: Debug device_ids
       debug:
