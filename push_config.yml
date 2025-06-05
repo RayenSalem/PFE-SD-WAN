@@ -1,3 +1,4 @@
+---
 - name: Commit config to multiple devices
   hosts: fortimanager
   gather_facts: false
@@ -22,55 +23,65 @@
           selector: "dvmdb_device"
           params:
             adom: "{{ device_adom }}"
+            filter: ["name", "in", "{{ devices | map(attribute='name') | list }}"]
       register: device_facts
 
     - name: Set device object IDs
       set_fact:
-        device_ids: >-
-          {{
-            device_facts.meta.response_data
-            | selectattr('name', 'in', devices | map(attribute='name') | list)
-            | map(attribute='oid')
-            | list
-          }}
-
-    - name: Invoke the task for all devices
-      fortinet.fortimanager.fmgr_securityconsole_install_device:
-        securityconsole_install_device:
-          adom: "{{ device_adom }}"
-          scope: "{{ devices }}"
-      register: installing_task
-
+        device_ids: "{{ device_facts.meta.response_data | map(attribute='oid') | list }}"
 
     - name: Debug device_ids
       debug:
         var: device_ids
 
-    - name: Convert device IDs to strings (if needed)
-      set_fact:
-        device_ids_str: "{{ device_ids | map('string') | list }}"
+    - name: Install configuration to devices
+      fortinet.fortimanager.fmgr_securityconsole_install_device:
+        securityconsole_install_device:
+          adom: "{{ device_adom }}"
+          scope: "{{ devices }}"
+          flags:
+            - none
+      register: install_task
 
-    - name: Reload and retrieve the device list from FortiManager
-      fortinet.fortimanager.fmgr_dvm_cmd_reload_devlist:
-        workspace_locking_adom: "{{ device_adom }}"
-        workspace_locking_timeout: 300
-        dvm_cmd_reload_devlist:
+    - name: Wait for installation to complete
+      fortinet.fortimanager.fmgr_fact:
+        facts:
+          selector: "task_task"
+          params:
+            task: "{{ install_task.meta.response_data.task }}"
+      register: task_info
+      until: task_info.meta.response_data.percent == 100
+      retries: 30
+      delay: 10
+      ignore_errors: yes
+
+    - name: Prepare device reload parameters
+      set_fact:
+        reload_params:
           adom: "{{ device_adom }}"
           flags:
             - create_task
             - nonblocking
           from: fgfm
-          reload_dev_member_list: "{{ device_ids_str }}"
-      register: reload_task
+          reload_dev_member_list: "{{ device_ids }}"
 
-    - name: Monitor reload task status
+    - name: Reload device list in FortiManager
+      fortinet.fortimanager.fmgr_dvm_cmd_reload_devlist:
+        workspace_locking_adom: "{{ device_adom }}"
+        workspace_locking_timeout: 300
+        dvm_cmd_reload_devlist: "{{ reload_params }}"
+      register: reload_task
+      when: device_ids | length > 0
+
+    - name: Wait for reload to complete
       fortinet.fortimanager.fmgr_fact:
         facts:
           selector: "task_task"
           params:
             task: "{{ reload_task.meta.response_data.task }}"
-      register: reload_taskinfo
-      until: reload_taskinfo.meta.response_data.percent == 100
+      register: reload_task_info
+      until: reload_task_info.meta.response_data.percent == 100
       retries: 30
-      delay: 5
+      delay: 10
       ignore_errors: yes
+      when: reload_task is defined and reload_task.meta.response_data.task is defined
