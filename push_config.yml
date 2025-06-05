@@ -52,6 +52,12 @@
       retries: 30
       delay: 3
 
+    - name: Debug device_ids
+      debug:
+        var: device_ids
+
+
+
     - name: Reload and retrieve the device list from FortiManager
       fortinet.fortimanager.fmgr_dvm_cmd_reload_devlist:
         workspace_locking_adom: "{{ device_adom }}"
@@ -62,7 +68,7 @@
             - create_task
             - nonblocking
           from: fgfm
-          reload_dev_member_list: "{{ device_ids }}"
+          reload_dev_member_list: "{{ [device_ids] if device_ids is string else device_ids }}"
       register: reload_task
 
     - name: Monitor reload task status
