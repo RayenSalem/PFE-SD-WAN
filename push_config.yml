@@ -7,7 +7,7 @@
     ansible_httpapi_use_ssl: true
     ansible_httpapi_validate_certs: false
     ansible_httpapi_port: 443
-    ansible_command_timeout: 120
+    ansible_command_timeout: 300
     ansible_warnings: false
     device_adom: "root"
     device_vdom: "root"
@@ -29,10 +29,13 @@
     - name: Set device object IDs
       set_fact:
         device_ids: "{{ device_facts.meta.response_data | map(attribute='oid') | list }}"
+        device_names: "{{ device_facts.meta.response_data | map(attribute='name') | list }}"
 
-    - name: Debug device_ids
+    - name: Debug device information
       debug:
-        var: device_ids
+        msg: |
+          Device IDs: {{ device_ids }}
+          Device Names: {{ device_names }}
 
     - name: Install configuration to devices
       fortinet.fortimanager.fmgr_securityconsole_install_device:
@@ -51,7 +54,7 @@
             task: "{{ install_task.meta.response_data.task }}"
       register: task_info
       until: task_info.meta.response_data.percent == 100
-      retries: 30
+      retries: 60
       delay: 10
       ignore_errors: yes
 
@@ -63,12 +66,17 @@
             - create_task
             - nonblocking
           from: fgfm
-          reload_dev_member_list: "{{ device_ids }}"
+          reload_dev_member_list:
+            - "{{ device_ids | map('string') | list }}"
+
+    - name: Debug reload parameters
+      debug:
+        var: reload_params
 
     - name: Reload device list in FortiManager
       fortinet.fortimanager.fmgr_dvm_cmd_reload_devlist:
         workspace_locking_adom: "{{ device_adom }}"
-        workspace_locking_timeout: 300
+        workspace_locking_timeout: 600
         dvm_cmd_reload_devlist: "{{ reload_params }}"
       register: reload_task
       when: device_ids | length > 0
@@ -81,7 +89,7 @@
             task: "{{ reload_task.meta.response_data.task }}"
       register: reload_task_info
       until: reload_task_info.meta.response_data.percent == 100
-      retries: 30
+      retries: 60
       delay: 10
       ignore_errors: yes
       when: reload_task is defined and reload_task.meta.response_data.task is defined
