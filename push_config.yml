@@ -62,7 +62,7 @@
             - create_task
             - nonblocking
           from: fgfm
-          reload_dev_member_list: "{{ [device_ids] | flatten }}"
+          reload_dev_member_list: "{{ device_ids }}"
       register: reload_task
 
     - name: Monitor reload task status
