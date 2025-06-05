@@ -46,7 +46,9 @@
       debug:
         var: device_ids
 
-
+    - name: Convert device IDs to strings (if needed)
+      set_fact:
+        device_ids_str: "{{ device_ids | map('string') | list }}"
 
     - name: Reload and retrieve the device list from FortiManager
       fortinet.fortimanager.fmgr_dvm_cmd_reload_devlist:
@@ -58,7 +60,7 @@
             - create_task
             - nonblocking
           from: fgfm
-          reload_dev_member_list: "{{ [device_ids] if device_ids is string else device_ids }}"
+          reload_dev_member_list: "{{ device_ids_str }}"
       register: reload_task
 
     - name: Monitor reload task status
