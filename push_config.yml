@@ -19,28 +19,37 @@
     - name: Get device object IDs
       fortinet.fortimanager.fmgr_fact:
         facts:
-          selector: "dvmdb_device"  # Corrected from devprof_device to dvmdb_device
+          selector: "dvmdb_device"
           params:
             adom: "{{ device_adom }}"
-            filter: ["name", "in", "{{ devices | map(attribute='name') | list }}"]  # Added filter
       register: device_facts
 
-    - name: Set device object IDs (simplified)
+    - name: Set device object IDs
       set_fact:
-        device_ids: "{{ device_facts.meta.response_data | map(attribute='oid') | list }}"
-        device_names: "{{ device_facts.meta.response_data | map(attribute='name') | list }}"
-
-    - name: Debug device information
-      debug:
-        msg: |
-          Device IDs: {{ device_ids }}
-          Device Names: {{ device_names }}
+        device_ids: >-
+          {{
+            device_facts.meta.response_data
+            | selectattr('name', 'in', devices | map(attribute='name') | list)
+            | map(attribute='oid')
+            | list
+          }}
 
     - name: Invoke the task for all devices
       fortinet.fortimanager.fmgr_securityconsole_install_device:
         securityconsole_install_device:
           adom: "{{ device_adom }}"
           scope: "{{ devices }}"
-          flags:
-            - none  
       register: installing_task
+
+    - name: Inspect the Task Status
+      fortinet.fortimanager.fmgr_fact:
+        facts:
+          selector: "task_task"
+          params:
+            task: "{{ installing_task.meta.response_data.task }}"
+      register: taskinfo
+      until: taskinfo.meta.response_data.percent == 100
+      retries: 30
+      delay: 3
+
+   
