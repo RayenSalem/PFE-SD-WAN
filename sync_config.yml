@@ -16,37 +16,19 @@
       - name: "spoke2"
 
   tasks:
-    - name: Format device member list
-      set_fact:
-        reload_members: "{{ devices | map(attribute='name') | map('regex_replace', '^(.*)$', '{\"name\": \"\\1\"}') | map('from_yaml') | list }}"
-
-    - name: Debug formatted members
-      debug:
-        var: reload_members
-
-    - name: Reload device list in FortiManager
+    - name: Retrieve a list of devices.
       fortinet.fortimanager.fmgr_dvm_cmd_reload_devlist:
         workspace_locking_adom: "{{ device_adom }}"
-        workspace_locking_timeout: 600
+        workspace_locking_timeout: 300
         dvm_cmd_reload_devlist:
-          adom: "{{ device_adom }}"
-          flags:
-            - create_task
-            - nonblocking
-          from: fgfm
-          reload_dev_member_list: "{{ reload_members }}"
-      register: reload_task
+           adom: "{{ device_adom }}"
+           flags:
+             - "create_task"
+             - "nonblocking"
+           from: fgfm
+           reload_dev_member_list:
+            - name: "{{ devices }}"
 
-    - name: Poll the reload task until it finishes
-      fortinet.fortimanager.fmgr_fact:
-        facts:
-          selector: 'task_task'
-          params:
-            task: '{{ reload_task.meta.response_data.task }}'
-      register: reload_taskinfo
-      until: reload_taskinfo.meta.response_data.percent == 100
-      retries: 60
-      delay: 5
-      failed_when: reload_taskinfo.meta.response_data.state == 'error'
-      when: reload_task is succeeded
+
+  
 
