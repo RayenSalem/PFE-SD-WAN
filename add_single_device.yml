@@ -1,4 +1,4 @@
-- name: Discover device {{ current_ip }}
+- name: Discover device
   fmgr_dvm_cmd_discover_device:
     bypass_validation: True
     dvm_cmd_discover_device:
@@ -9,7 +9,7 @@
   register: probed_device
   ignore_errors: yes
 
-- name: Add device {{ current_ip }}
+- name: Add device 
   fmgr_dvm_cmd_add_device:
     bypass_validation: True
     dvm_cmd_add_device:
@@ -28,7 +28,7 @@
   register: installing_task
   when: probed_device is succeeded
 
-- name: Poll the task for {{ current_ip }}
+- name: Poll the task for
   fmgr_fact:
     facts:
         selector: 'task_task'
