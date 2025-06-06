@@ -37,15 +37,3 @@
           reload_dev_member_list: "{{ reload_members }}"
       register: reload_task
       when: reload_members | length > 0
-
-    - name: Wait for reload to complete
-      fortinet.fortimanager.fmgr_fact:
-        facts:
-          selector: "task_task"
-          params:
-            task: "{{ reload_task.meta.response_data.task }}"
-      register: reload_task_info
-      until: reload_task_info.meta.response_data.percent == 100
-      retries: 60
-      delay: 10
-      ignore_errors: yes
