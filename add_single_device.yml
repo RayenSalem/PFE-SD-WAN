@@ -9,14 +9,6 @@
   register: probed_device
   ignore_errors: yes
 
-- name: Remove existing device (if exists)
-  fmgr_dvm_cmd_remove_device:
-    bypass_validation: true
-    dvm_cmd_remove_device:
-      adom: 'root'
-      device: '{{ probed_device.meta.response_data.device.name }}'
-  ignore_errors: yes
-
 - name: Add device {{ current_ip }}
   fmgr_dvm_cmd_add_device:
     bypass_validation: True
