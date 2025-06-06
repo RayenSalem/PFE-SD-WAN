@@ -16,26 +16,13 @@
       - name: "spoke2"
 
   tasks:
-    - name: Get device object IDs
-      fortinet.fortimanager.fmgr_fact:
-        facts:
-          selector: "dvmdb_device"
-          params:
-            adom: "{{ device_adom }}"
-            filter: ["name", "in", "{{ devices | map(attribute='name') | list }}"]
-      register: device_facts
-
-    - name: Set device object IDs
+    - name: Format device member list
       set_fact:
-        device_ids: "{{ device_facts.meta.response_data 
-                        | map(attribute='oid') 
-                        | map('regex_replace', '^(.*)$', '{\"oid\": \\1}') 
-                        | map('from_yaml') 
-                        | list }}"
+        reload_members: "{{ devices | map(attribute='name') | map('regex_replace', '^(.*)$', '{\"name\": \"\\1\"}') | map('from_yaml') | list }}"
 
-    - name: Debug device IDs
+    - name: Debug formatted members
       debug:
-        var: device_ids
+        var: reload_members
 
     - name: Reload device list in FortiManager
       fortinet.fortimanager.fmgr_dvm_cmd_reload_devlist:
@@ -47,9 +34,9 @@
             - create_task
             - nonblocking
           from: fgfm
-          reload_dev_member_list: "{{ device_ids }}"
+          reload_dev_member_list: "{{ reload_members }}"
       register: reload_task
-      when: device_ids | length > 0
+      when: reload_members | length > 0
 
     - name: Wait for reload to complete
       fortinet.fortimanager.fmgr_fact:
@@ -62,6 +49,3 @@
       retries: 60
       delay: 10
       ignore_errors: yes
-
-
-
