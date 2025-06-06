@@ -58,7 +58,7 @@
       delay: 10
       ignore_errors: yes
 
-    - name: Prepare device reload parameters (corrected format)
+    - name: Prepare device reload parameters (final working format)
       set_fact:
         reload_params:
           adom: "{{ device_adom }}"
@@ -66,13 +66,14 @@
             - create_task
             - nonblocking
           from: fgfm
-          reload_dev_member_list: "{{ device_ids }}"
+          reload_dev_member_list:
+            - member: "{{ device_ids | map('string') | list }}"
 
     - name: Debug reload parameters
       debug:
         var: reload_params
 
-    - name: Reload device list in FortiManager (corrected)
+    - name: Reload device list in FortiManager (final working version)
       fortinet.fortimanager.fmgr_dvm_cmd_reload_devlist:
         workspace_locking_adom: "{{ device_adom }}"
         workspace_locking_timeout: 600
