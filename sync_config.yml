@@ -7,7 +7,7 @@
     ansible_httpapi_use_ssl: true
     ansible_httpapi_validate_certs: false
     ansible_httpapi_port: 443
-    ansible_command_timeout: 120
+    ansible_command_timeout: 300
     ansible_warnings: false
     device_adom: "root"
     devices:
@@ -29,21 +29,21 @@
       set_fact:
         device_ids: "{{ device_facts.meta.response_data | map(attribute='oid') | list }}"
 
-    - name: Prepare reload parameters
-      set_fact:
-        reload_params:
+    - name: Debug device IDs
+      debug:
+        var: device_ids
+
+    - name: Reload device list in FortiManager
+      fortinet.fortimanager.fmgr_dvm_cmd_reload_devlist:
+        workspace_locking_adom: "{{ device_adom }}"
+        workspace_locking_timeout: 600
+        dvm_cmd_reload_devlist:
           adom: "{{ device_adom }}"
           flags:
             - create_task
             - nonblocking
           from: fgfm
-          reload_dev_member_list: "{{ device_ids | map('string') | list }}"
-
-    - name: Reload device list in FortiManager (corrected)
-      fortinet.fortimanager.fmgr_dvm_cmd_reload_devlist:
-        workspace_locking_adom: "{{ device_adom }}"
-        workspace_locking_timeout: 600
-        dvm_cmd_reload_devlist: "{{ reload_params }}"
+          reload_dev_member_list: "{{ device_ids }}"
       register: reload_task
 
 
@@ -58,3 +58,4 @@
       retries: 60
       delay: 10
       ignore_errors: yes
+
