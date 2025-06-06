@@ -36,17 +36,17 @@
           from: fgfm
           reload_dev_member_list: "{{ reload_members }}"
       register: reload_task
-      when: reload_members | length > 0
 
-    - name: Wait for the reload task to finish
-      fortinet.fortimanager.fmgr_task:
-        task_id: "{{ reload_task.meta.response_data.task }}"
-      register: reload_status
-      until: reload_status.meta.response_data.percent == 100
-      retries: 30
-      delay: 10
-
-    - name: Show reload task result
-      debug:
-        var: reload_status
+    - name: Poll the reload task until it finishes
+      fortinet.fortimanager.fmgr_fact:
+        facts:
+          selector: 'task_task'
+          params:
+            task: '{{ reload_task.meta.response_data.task }}'
+      register: reload_taskinfo
+      until: reload_taskinfo.meta.response_data.percent == 100
+      retries: 60
+      delay: 5
+      failed_when: reload_taskinfo.meta.response_data.state == 'error'
+      when: reload_task is succeeded
 
