@@ -27,7 +27,11 @@
 
     - name: Set device object IDs
       set_fact:
-        device_ids: "{{ device_facts.meta.response_data | map(attribute='oid') | list }}"
+        device_ids: "{{ device_facts.meta.response_data 
+                        | map(attribute='oid') 
+                        | map('regex_replace', '^(.*)$', '{\"oid\": \\1}') 
+                        | map('from_yaml') 
+                        | list }}"
 
     - name: Debug device IDs
       debug:
@@ -45,7 +49,7 @@
           from: fgfm
           reload_dev_member_list: "{{ device_ids }}"
       register: reload_task
-
+      when: device_ids | length > 0
 
     - name: Wait for reload to complete
       fortinet.fortimanager.fmgr_fact:
@@ -58,4 +62,6 @@
       retries: 60
       delay: 10
       ignore_errors: yes
+
+
 
