@@ -16,19 +16,16 @@
       - name: "spoke2"
 
   tasks:
-    - name: Retrieve a list of devices.
+    - name: Retrieve a list of devices
       fortinet.fortimanager.fmgr_dvm_cmd_reload_devlist:
         workspace_locking_adom: "{{ device_adom }}"
         workspace_locking_timeout: 300
         dvm_cmd_reload_devlist:
-           adom: "{{ device_adom }}"
-           flags:
-             - "create_task"
-             - "nonblocking"
-           from: fgfm
-           reload_dev_member_list:
-            - name: "{{ devices }}"
-
-
-  
-
+          adom: "{{ device_adom }}"
+          flags:
+            - "create_task"
+            - "nonblocking"
+          from: fgfm
+          reload_dev_member_list:
+            - name: "{{ item.name }}"
+      loop: "{{ devices }}"
