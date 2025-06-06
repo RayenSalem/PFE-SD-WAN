@@ -1,0 +1,71 @@
+---
+- name: Reload device list in FortiManager
+  hosts: fortimanager
+  gather_facts: false
+  connection: httpapi
+  vars:
+    ansible_httpapi_use_ssl: true
+    ansible_httpapi_validate_certs: false
+    ansible_httpapi_port: 443
+    ansible_command_timeout: 120
+    ansible_warnings: false
+    device_adom: "root"
+    device_vdom: "root"
+    devices:
+      - name: "Hub"
+      - name: "spoke1"
+      - name: "spoke2"
+
+  tasks:
+    - name: Get device object IDs
+      fortinet.fortimanager.fmgr_fact:
+        facts:
+          selector: "dvmdb_device"
+          params:
+            adom: "{{ device_adom }}"
+            filter: ["name", "in", "{{ devices | map(attribute='name') | list }}"]
+      register: device_facts
+
+    - name: Set device object IDs
+      set_fact:
+        device_ids: "{{ device_facts.meta.response_data | map(attribute='oid') | list }}"
+        device_names: "{{ device_facts.meta.response_data | map(attribute='name') | list }}"
+
+    - name: Debug device information
+      debug:
+        msg: |
+          Device IDs: {{ device_ids }}
+          Device Names: {{ device_names }}
+
+    - name: Reload device list in FortiManager
+      fortinet.fortimanager.fmgr_dvm_cmd_reload_devlist:
+        workspace_locking_adom: "{{ device_adom }}"
+        workspace_locking_timeout: 600
+        adom: "{{ device_adom }}"
+        flags:
+          - create_task
+          - nonblocking
+        from: fgfm
+        device: "{{ device_ids | map('string') | join(',') }}"
+      register: reload_task
+
+    - name: Wait for reload to complete
+      fortinet.fortimanager.fmgr_fact:
+        facts:
+          selector: "task_task"
+          params:
+            task: "{{ reload_task.meta.response_data.task }}"
+      register: reload_task_info
+      until: reload_task_info.meta.response_data.percent == 100
+      retries: 60
+      delay: 10
+      ignore_errors: yes
+
+
+    - name: Verify reload success
+      assert:
+        that:
+          - reload_task_info.meta.response_data.percent == 100
+          - reload_task_info.meta.response_data.state == 'done'
+        fail_msg: "Device reload failed"
+        success_msg: "Devices reloaded successfully"
