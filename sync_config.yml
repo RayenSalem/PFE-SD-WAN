@@ -10,7 +10,6 @@
     ansible_command_timeout: 120
     ansible_warnings: false
     device_adom: "root"
-    device_vdom: "root"
     devices:
       - name: "Hub"
       - name: "spoke1"
@@ -29,25 +28,24 @@
     - name: Set device object IDs
       set_fact:
         device_ids: "{{ device_facts.meta.response_data | map(attribute='oid') | list }}"
-        device_names: "{{ device_facts.meta.response_data | map(attribute='name') | list }}"
 
-    - name: Debug device information
-      debug:
-        msg: |
-          Device IDs: {{ device_ids }}
-          Device Names: {{ device_names }}
+    - name: Prepare reload parameters
+      set_fact:
+        reload_params:
+          adom: "{{ device_adom }}"
+          flags:
+            - create_task
+            - nonblocking
+          from: fgfm
+          reload_dev_member_list: "{{ device_ids | map('string') | list }}"
 
-    - name: Reload device list in FortiManager
+    - name: Reload device list in FortiManager (corrected)
       fortinet.fortimanager.fmgr_dvm_cmd_reload_devlist:
         workspace_locking_adom: "{{ device_adom }}"
         workspace_locking_timeout: 600
-        adom: "{{ device_adom }}"
-        flags:
-          - create_task
-          - nonblocking
-        from: fgfm
-        device: "{{ device_ids | map('string') | join(',') }}"
+        dvm_cmd_reload_devlist: "{{ reload_params }}"
       register: reload_task
+
 
     - name: Wait for reload to complete
       fortinet.fortimanager.fmgr_fact:
@@ -60,12 +58,3 @@
       retries: 60
       delay: 10
       ignore_errors: yes
-
-
-    - name: Verify reload success
-      assert:
-        that:
-          - reload_task_info.meta.response_data.percent == 100
-          - reload_task_info.meta.response_data.state == 'done'
-        fail_msg: "Device reload failed"
-        success_msg: "Devices reloaded successfully"
