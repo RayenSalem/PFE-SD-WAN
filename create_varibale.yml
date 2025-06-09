@@ -1,0 +1,25 @@
+- name: Example playbook with branch_id variable
+  hosts: fortimanager
+  connection: httpapi
+  vars:
+    ansible_httpapi_use_ssl: true
+    ansible_httpapi_validate_certs: false
+    ansible_httpapi_port: 443
+  tasks:
+    - name: Create branch_id variable for spoke1 and spoke2
+      fortinet.fortimanager.fmgr_fmg_variable:
+        workspace_locking_adom: root
+        workspace_locking_timeout: 300
+        adom: root
+        state: present
+        fmg_variable:
+          name: "branch_id"
+          dynamic_mapping:
+            - _scope:
+                - name: "spoke1"
+                  vdom: "root"
+              value: "1"
+            - _scope:
+                - name: "spoke2"
+                  vdom: "root"
+              value: "2"
