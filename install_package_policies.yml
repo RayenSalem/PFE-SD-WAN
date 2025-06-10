@@ -19,24 +19,21 @@
       register: install_tasks
 
     - name: Poll the install tasks
+      vars:
+        task_id: "{{ item.meta.response_data.task }}"
       fortinet.fortimanager.fmgr_fact:
         facts:
           selector: "task_task"
           params:
-            task: "{{ item.ansible_facts.meta.response_data.task }}"
+            task: "{{ task_id }}"
       loop: "{{ install_tasks.results }}"
+      loop_control:
+        label: "{{ item.item }}"
       register: taskinfo
       until: taskinfo.meta.response_data.percent == 100
       retries: 30
       delay: 5
 
-    - name: Cancel install tasks for all packages
-      fortinet.fortimanager.fmgr_securityconsole_package_cancel_install:
-        securityconsole_package_cancel_install:
-          adom: "{{ adom }}"
-      loop: "{{ policy_packages }}"
-
-    - name: Show install preview results
+    - name: Show final preview install result
       debug:
-        msg: "{{ item }}"
-      loop: "{{ install_tasks.results }}"
+        msg: "{{ taskinfo }}"
