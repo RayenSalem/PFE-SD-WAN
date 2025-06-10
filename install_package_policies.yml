@@ -2,7 +2,7 @@
   hosts: fortimanager
   connection: httpapi
   vars:
-    adom: demo
+    adom: root
     policy_packages:
       - Hubs
       - spokes
