@@ -1,11 +1,11 @@
 - name: INSTALL PREVIEW - POLICY PACKAGES (Hubs and Spokes)
-  hosts: fmg
+  hosts: fortimanager
   connection: httpapi
   vars:
     adom: demo
     policy_packages:
-      - ppkg_hubs
-      - ppkg_spokes
+      - Hubs
+      - spokes
 
   tasks:
     - name: Install for policy package [preview mode] {{ item }}
