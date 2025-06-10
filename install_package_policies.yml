@@ -13,7 +13,7 @@
         securityconsole_install_package:
           adom: "{{ adom }}"
           flags:
-            - preview
+            - cp_all_objs
           pkg: "{{ item }}"
       loop: "{{ policy_packages }}"
       register: install_tasks
