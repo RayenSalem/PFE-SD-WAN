@@ -1,0 +1,42 @@
+- name: INSTALL PREVIEW - POLICY PACKAGES (Hubs and Spokes)
+  hosts: fmg
+  connection: httpapi
+  vars:
+    adom: demo
+    policy_packages:
+      - ppkg_hubs
+      - ppkg_spokes
+
+  tasks:
+    - name: Install for policy package [preview mode] {{ item }}
+      fortinet.fortimanager.fmgr_securityconsole_install_package:
+        securityconsole_install_package:
+          adom: "{{ adom }}"
+          flags:
+            - preview
+          pkg: "{{ item }}"
+      loop: "{{ policy_packages }}"
+      register: install_tasks
+
+    - name: Poll the install tasks
+      fortinet.fortimanager.fmgr_fact:
+        facts:
+          selector: "task_task"
+          params:
+            task: "{{ item.ansible_facts.meta.response_data.task }}"
+      loop: "{{ install_tasks.results }}"
+      register: taskinfo
+      until: taskinfo.meta.response_data.percent == 100
+      retries: 30
+      delay: 5
+
+    - name: Cancel install tasks for all packages
+      fortinet.fortimanager.fmgr_securityconsole_package_cancel_install:
+        securityconsole_package_cancel_install:
+          adom: "{{ adom }}"
+      loop: "{{ policy_packages }}"
+
+    - name: Show install preview results
+      debug:
+        msg: "{{ item }}"
+      loop: "{{ install_tasks.results }}"
