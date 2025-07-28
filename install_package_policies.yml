@@ -31,7 +31,7 @@
         label: "{{ item.item }}"
       register: taskinfo
       until: taskinfo.meta.response_data.percent == 100
-      retries: 30
+      retries: 60
       delay: 5
 
     - name: Show final preview install result
